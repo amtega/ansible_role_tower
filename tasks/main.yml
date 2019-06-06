@@ -1,2 +1,7 @@
 ---
 # Role tasks
+
+- include_tasks: install/main.yml
+  tags:
+    - role::tower
+    - role::tower::install

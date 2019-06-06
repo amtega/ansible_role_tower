@@ -1,2 +1,39 @@
 ---
 # Tasks for testing role
+
+- name: Configure vagrant sandbox environment
+  hosts: localhost
+  roles:
+    - role: amtega.vagrant_presets
+      vars:
+        vagrant_presets_boxes_json_query: >-
+          [? starts_with(name, `centos-7`) ]
+  tags:
+    - sandbox
+
+- name: Run idempotence test
+  hosts: localhost
+  roles:
+    - role: amtega.vagrant_sandbox
+      vars:
+        vagrant_sandbox_state: started
+        vagrant_provisioner_vm_memory: 3850
+  tags:
+    - sandbox
+
+- name: Test tower role
+  hosts: vagrant_sandbox_vms
+  roles:
+    - role: amtega.tower
+  tags:
+    - idempotence
+
+- name: Cleanup vagrant sandbox
+  hosts: localhost
+  roles:
+    - role: amtega.vagrant_sandbox
+      vars:
+        vagrant_sandbox_state: absent
+  tags:
+    - cleanup
+    - sandbox

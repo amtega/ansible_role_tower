@@ -1,0 +1,22 @@
+---
+# Setup settings tasks
+
+- block:
+    - name: Setup tower settings
+      tower_settings:
+        name: "{{ tower_setting_item.name }}"
+        tower_config_file: "{{ tower_config_file | default(omit) }}"
+        tower_host: "{{ tower_host }}"
+        tower_password: "{{ tower_password }}"
+        tower_username: "{{ tower_username }}"
+        tower_verify_ssl: "{{ tower_verify_ssl }}"
+        value: "{{ tower_setting_item.value }}"
+      register: tower_settings_setup_result
+      when: tower_setting_item.force_update | default(true)
+      loop: "{{ tower_settings }}"
+      loop_control:
+        loop_var: tower_setting_item
+        label: "{{ tower_setting_item.name }}"
+  tags:
+    - role::tower
+    - role::tower::settings

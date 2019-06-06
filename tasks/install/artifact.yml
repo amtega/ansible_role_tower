@@ -1,0 +1,29 @@
+---
+# Tower artifact download tasks
+
+- block:
+    - name: Get tower repo info from official site
+      uri:
+        url: "{{ tower_repo_url }}"
+        return_content: yes
+      register: tower_get_releases_result
+      when:
+        - tower_version is not defined
+        - tower_artifact is not defined
+
+    - block:
+        - name: Download tower artifacts
+          include_role:
+            name: amtega.artifact
+          vars:
+            artifact_list:
+              - "{{ tower_artifact_overriden }}"
+      when: >-
+        tower_version_to_install
+        is not version(ansible_local_facts.version | default(0), "==")
+        or tower_force_install
+      vars:
+        ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
+  tags:
+    - role::tower
+    - role::tower::install

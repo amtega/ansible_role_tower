@@ -1,0 +1,19 @@
+---
+# Custom facts configuration tasks
+
+- block:
+    - name: Create custom facts directory
+      file:
+        path: /etc/ansible/facts.d
+        state: directory
+
+    - name: Configure tower facts
+      template:
+        src: tower.fact.j2
+        dest: "{{ tower_facts_file_path }}"
+        owner: root
+        group: root
+        mode: 0640
+  tags:
+    - role::tower
+    - role::tower::install

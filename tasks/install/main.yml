@@ -1,0 +1,14 @@
+---
+# Install tasks
+
+- block:
+    - name: Flush handlers to enfoce selinux config
+      meta: flush_handlers
+
+    - include_tasks: artifact.yml
+    - include_tasks: setup.yml
+    - include_tasks: facts.yml
+    - include_tasks: cleanup.yml
+  tags:
+    - role::tower
+    - role::tower::install

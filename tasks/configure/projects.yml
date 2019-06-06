@@ -1,0 +1,72 @@
+---
+# Setup projects tasks
+
+- block:
+    - name: Setup tower projects
+      tower_project:
+        description: >-
+          {{ tower_project_item.description
+             | default(tower_projects_defaults.description)
+             | default(omit) }}
+        local_path: >-
+          {{ tower_project_item.local_path
+             | default(tower_projects_defaults.local_path)
+             | default(omit) }}
+        name: >-
+          {{ tower_project_item.name
+             | default(tower_projects_defaults.name)
+             | default(omit) }}
+        organization: >-
+          {{ tower_project_item.organization
+             | default(tower_projects_defaults.organization)
+             | default(omit) }}
+        scm_branch: >-
+          {{ tower_project_item.scm_branch
+             | default(tower_projects_defaults.scm_branch)
+             | default(omit) }}
+        scm_clean: >-
+          {{ tower_project_item.scm_clean
+             | default(tower_projects_defaults.scm_clean)
+             | default(omit) }}
+        scm_credential: >-
+          {{ tower_project_item.scm_credential
+             | default(tower_projects_defaults.scm_credential)
+             | default(omit) }}
+        scm_delete_on_update: >-
+          {{ tower_project_item.scm_delete_on_update
+             | default(tower_projects_defaults.scm_delete_on_update)
+             | default(omit) }}
+        scm_type: >-
+          {{ tower_project_item.scm_type
+             | default(tower_projects_defaults.scm_type)
+             | default(omit) }}
+        scm_update_on_launch: >-
+          {{ tower_project_item.scm_update_on_launch
+             | default(tower_projects_defaults.scm_update_on_launch)
+             | default(omit) }}
+        scm_url: >-
+          {{ tower_project_item.scm_url
+             | default(tower_projects_defaults.scm_url)
+             | default(omit) }}
+        state: >-
+          {{ tower_project_item.state
+             | default(tower_projects_defaults.state)
+             | default(omit) }}
+        tower_config_file: "{{ tower_config_file | default(omit) }}"
+        tower_host: "{{ tower_host }}"
+        tower_password: "{{ tower_password }}"
+        tower_username: "{{ tower_username }}"
+        tower_verify_ssl: "{{ tower_verify_ssl }}"
+      register: tower_projects_setup_result        
+      loop: "{{ tower_projects }}"
+      loop_control:
+        loop_var: tower_project_item
+        label: "{{ tower_project_item.name }}"
+
+    - name: Give some time to tower to refresh projects
+      pause:
+        seconds: "{{ tower_projects_pause }}"
+      when: tower_projects_pause is defined
+  tags:
+    - role::tower
+    - role::tower::projects

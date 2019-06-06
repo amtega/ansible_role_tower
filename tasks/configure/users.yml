@@ -1,0 +1,54 @@
+---
+# Setup users tasks
+
+- block:
+    - name: Setup tower users
+      tower_user:
+        auditor: >-
+          {{ tower_user_item.auditor
+             | default(tower_users_defaults.auditor)
+             | default(omit) }}
+        email: >-
+          {{ tower_user_item.email
+             | default(tower_users_defaults.email) }}
+        fist_name: >-
+          {{ tower_user_item.fist_name
+             | default(tower_users_defaults.fist_name)
+             | default(omit) }}
+        last_name: >-
+          {{ tower_user_item.last_name
+             | default(tower_users_defaults.last_name)
+             | default(omit) }}
+        password: >-
+          {{ tower_user_item.password
+             | default(tower_users_defaults.password)
+             | default(omit) }}
+        state: >-
+          {{ tower_user_item.state
+             | default(tower_users_defaults.state)
+             | default("present") }}
+        superuser: >-
+          {{ tower_user_item.superuser
+             | default(tower_users_defaults.superuser)
+             | default(omit) }}
+        tower_config_file: "{{ tower_config_file | default(omit) }}"
+        tower_host: "{{ tower_host }}"
+        tower_password: "{{ tower_password }}"
+        tower_username: "{{ tower_username }}"
+        tower_verify_ssl: "{{ tower_verify_ssl }}"
+        username: >-
+          {{ tower_user_item.username
+             | default(tower_users_defaults.username) }}
+      when: >-
+        tower_user_item.force_update
+        | default(tower_users_defaults.force_update)
+        | default(false)
+      register: tower_users_setup_result
+      loop: "{{ tower_users }}"
+      loop_control:
+        loop_var: tower_user_item
+        label: "{{ tower_user_item.username }}"
+      no_log: "{{ tower_no_log }}"
+  tags:
+    - role::tower
+    - role::tower::users

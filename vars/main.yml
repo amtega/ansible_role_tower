@@ -1,2 +1,46 @@
 ---
 # Role variables
+
+# Offical repository settings
+
+tower_repo_url: https://releases.ansible.com/ansible-tower/setup-bundle/
+
+# Version to install
+
+tower_version_to_install: "{{ lookup('template', 'version.yml.j2') | trim }}"
+
+# Artifact variables
+
+tower_package_regexp: >-
+  {{ "ansible-tower-setup-bundle-[0-9.-]+\.el"
+     + ansible_facts.distribution_major_version
+     + "\.tar.gz" }}
+
+tower_default_artifact:
+  type: https
+  host: >-
+    {{ tower_repo_url | urlsplit('scheme')
+       + "://"
+       + tower_repo_url | urlsplit('hostname') }}
+  path: "{{ tower_repo_url | urlsplit('path') }}"
+  file: >-
+    {{ "ansible-tower-setup-bundle-"
+       + tower_version_to_install
+       + ".el"
+       + ansible_facts.distribution_major_version | string
+       + ".tar.gz" }}
+  dest: /tmp
+  no_log: no
+
+tower_artifact_overrides:
+  id: tower
+  unarchive: yes
+
+tower_artifact_overriden: >-
+  {{ tower_artifact
+     | default(tower_default_artifact)
+     | combine(tower_artifact_overrides) }}
+
+# Facts path
+
+tower_facts_file_path: /etc/ansible/facts.d/tower.fact
