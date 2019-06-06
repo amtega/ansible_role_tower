@@ -1,225 +1,63 @@
 ---
-# Setup templates tasks
+# Setup licenses tasks
 
-- block:
-    - name: Setup tower job templates
-      tower_job_template:
-        ask_credential: >-
-          {{ tower_template_item.ask_credential
-             | default(tower_templates_defaults.ask_credential)
-             | default(omit) }}
-        ask_diff_mode: >-
-          {{ tower_template_item.ask_diff_mode
-             | default(tower_templates_defaults.ask_diff_mode)
-             | default(omit) }}
-        ask_extra_vars: >-
-          {{ tower_template_item.ask_extra_vars
-             | default(tower_templates_defaults.ask_extra_vars)
-             | default(omit) }}
-        ask_inventory: >-
-          {{ tower_template_item.ask_inventory
-             | default(tower_templates_defaults.ask_inventory)
-             | default(omit) }}
-        ask_job_type: >-
-          {{ tower_template_item.ask_job_type
-             | default(tower_templates_defaults.ask_job_type)
-             | default(omit) }}
-        ask_limit: >-
-          {{ tower_template_item.ask_limit
-             | default(tower_templates_defaults.ask_limit)
-             | default(omit) }}
-        ask_skip_tags: >-
-          {{ tower_template_item.ask_skip_tags
-             | default(tower_templates_defaults.ask_skip_tags)
-             | default(omit) }}
-        ask_tags: >-
-          {{ tower_template_item.ask_tags
-             | default(tower_templates_defaults.ask_tags)
-             | default(omit) }}
-        ask_verbosity: >-
-          {{ tower_template_item.ask_verbosity
-             | default(tower_templates_defaults.ask_verbosity)
-             | default(omit) }}
-        become_enabled: >-
-          {{ tower_template_item.become_enabled
-             | default(tower_templates_defaults.become_enabled)
-             | default(omit) }}
-        concurrent_jobs_enabled: >-
-          {{ tower_template_item.concurrent_jobs_enabled
-             | default(tower_templates_defaults.concurrent_jobs_enabled)
-             | default(omit) }}
-        credential: >-
-          {{ tower_template_item.credential
-             | default(tower_templates_defaults.credential)
-             | default(omit) }}
-        description: >-
-          {{ tower_template_item.description
-             | default(tower_templates_defaults.description)
-             | default(omit) }}
-        extra_vars_path: >-
-          {{ tower_template_item.extra_vars_path
-             | default(tower_templates_defaults.extra_vars_path)
-             | default(omit) }}
-        fact_caching_enabled: >-
-          {{ tower_template_item.fact_caching_enabled
-             | default(tower_templates_defaults.fact_caching_enabled)
-             | default(omit) }}
-        force_handlers_enabled: >-
-          {{ tower_template_item.force_handlers_enabled
-             | default(tower_templates_defaults.force_handlers_enabled)
-             | default(omit) }}
-        forks: >-
-          {{ tower_template_item.forks
-             | default(tower_templates_defaults.forks)
-             | default(omit) }}
-        host_config_key: >-
-          {{ tower_template_item.host_config_key
-             | default(tower_templates_defaults.host_config_key)
-             | default(omit) }}
-        inventory: >-
-          {{ tower_template_item.inventory
-             | default(tower_templates_defaults.inventory)
-             | default(omit) }}
-        job_tags: >-
-          {{ tower_template_item.job_tags
-             | default(tower_templates_defaults.job_tags)
-             | default(omit) }}
-        job_type: >-
-          {{ tower_template_item.job_type
-             | default(tower_templates_defaults.job_type)
-             | default(omit) }}
-        limit: >-
-          {{ tower_template_item.limit
-             | default(tower_templates_defaults.limit)
-             | default(omit) }}
-        name: >-
-          {{ tower_template_item.name
-             | default(tower_templates_defaults.name)
-             | default(omit) }}
-        playbook: >-
-          {{ tower_template_item.playbook
-             | default(tower_templates_defaults.playbook)
-             | default(omit) }}
-        project: >-
-          {{ tower_template_item.project
-             | default(tower_templates_defaults.project)
-             | default(omit) }}
-        skip_tags: >-
-          {{ tower_template_item.skip_tags
-             | default(tower_templates_defaults.skip_tags)
-             | default(omit) }}
-        start_at_task: >-
-          {{ tower_template_item.start_at_task
-             | default(tower_templates_defaults.start_at_task)
-             | default(omit) }}
-        state: >-
-          {{ tower_template_item.state
-             | default(tower_templates_defaults.state)
-             | default(omit) }}
-        survey_enabled: >-
-          {{ tower_template_item.survey_enabled
-             | default(tower_templates_defaults.survey_enabled)
-             | default(omit) }}
-        tower_config_file: "{{ tower_config_file | default(omit) }}"
-        tower_host: "{{ tower_host }}"
-        tower_password: "{{ tower_password }}"
-        tower_username: "{{ tower_username }}"
-        tower_verify_ssl: "{{ tower_verify_ssl }}"
-        vault_credential: >-
-          {{ tower_template_item.vault_credential
-             | default(tower_templates_defaults.vault_credential)
-             | default(omit) }}
-        verbosity: >-
-          {{ tower_template_item.verbosity
-             | default(tower_templates_defaults.verbosity)
-             | default(omit) }}
-      register: tower_templates_setup_result
-      loop: "{{ tower_templates }}"
-      loop_control:
-        loop_var: tower_template_item
-        label: "{{ tower_template_item.name }}"
-
-    - block:
-        - name: Get authentication token for tower api rest
-          uri:
-            url: "{{ tower_host }}/api/v2/tokens/"
-            method: POST
-            user: "{{ tower_username }}"
-            password: "{{ tower_password }}"
-            validate_certs: "{{ tower_verify_ssl }}"
-            force_basic_auth: yes
-            status_code: 201
-            return_content: yes
-          register: tower_api_token
-
-        - name: Read tower job template surverys
-          uri:
-            url: >-
-              {{ tower_host
-                + "/api/v2/job_templates/"
-                + tower_template_item.name
-                + "/survey_spec/" }}
-            headers:
-              Authorization: "Bearer {{ tower_api_token.json.token }}"
-              Content-Type: "application/json"
-            method: GET
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_verify_ssl }}"
-            status_code:
-              - 200
-              - 201
-              - 202
-          register: tower_templates_surverys_read_result
-          loop: "{{ tower_templates_with_survey }}"
-          loop_control:
-            loop_var: tower_template_item
-            label: "{{ tower_template_item.name }}"
-
-        - name: Setup tower job template surverys
-          uri:
-            url: >-
-              {{ tower_host
-                + "/api/v2/job_templates/"
-                + tower_template_item.name
-                + "/survey_spec/" }}
-            headers:
-              Authorization: "Bearer {{ tower_api_token.json.token }}"
-              Content-Type: "application/json"
-            method: POST
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_verify_ssl }}"
-            body: "{{ tower_template_item_survey_current_survey_spec }}"
-            body_format: json
-            status_code:
-              - 200
-              - 201
-              - 202
-          register: tower_templates_surverys_setup_result
-          changed_when: >-
-            tower_template_item_survey_previous_survey_spec
-            != tower_template_item_survey_current_survey_spec
-          loop: "{{ tower_templates_with_survey }}"
-          loop_control:
-            loop_var: tower_template_item
-            index_var: tower_template_index
-            label: "{{ tower_template_item.name }}"
-          vars:
-            tower_template_item_survey_previous_survey_spec: >-
-              {{ tower_templates_surverys_read_result.results
-                 [tower_template_index].json | to_json }}
-            tower_template_item_survey_current_survey_spec: >-
-              {{ tower_template_item.survey_spec
-                 | default(tower_templates_defaults.survey_spec)
-                 | to_json }}
-      when: tower_templates_with_survey | length > 0
-      vars:
-        tower_templates_with_survey: >-
-          {{ tower_templates | selectattr("survey_spec", "defined") | list
-             + (tower_templates_defaults.survey_spec is defined)
-               | ternary(tower_templates, [])
-             | unique }}
-  tags:
+# - block:
+#     - name: Get authentication token for tower api rest
+#       uri:
+#         url: "{{ tower_host }}/api/v2/tokens/"
+#         method: POST
+#         user: "{{ tower_username }}"
+#         password: "{{ tower_password }}"
+#         validate_certs: "{{ tower_verify_ssl }}"
+#         force_basic_auth: yes
+#         status_code: 201
+#         return_content: yes
+#       register: tower_api_token
+#
+#     - name: Setup tower licenses
+#       uri:
+#         url: >-
+#           {{ tower_host
+#             + "/api/v2/job_licenses/"
+#             + tower_license_item.name
+#             + "/survey_spec/" }}
+#         headers:
+#           Authorization: "Bearer {{ tower_api_token.json.token }}"
+#           Content-Type: "application/json"
+#         method: POST
+#         follow_redirects: all
+#         return_content: yes
+#         validate_certs: "{{ tower_verify_ssl }}"
+#         body: "{{ tower_license_item_survey_current_survey_spec }}"
+#         body_format: json
+#         status_code:
+#           - 200
+#           - 201
+#           - 202
+#       register: tower_licenses_surverys_setup_result
+#       changed_when: >-
+#         tower_license_item_survey_previous_survey_spec
+#         != tower_license_item_survey_current_survey_spec
+#       loop: "{{ tower_licenses_with_survey }}"
+#       loop_control:
+#         loop_var: tower_license_item
+#         index_var: tower_license_index
+#         label: "{{ tower_license_item.name }}"
+#       vars:
+#         tower_license_item_survey_previous_survey_spec: >-
+#           {{ tower_licenses_surverys_read_result.results
+#              [tower_license_index].json | to_json }}
+#         tower_license_item_survey_current_survey_spec: >-
+#           {{ tower_license_item.survey_spec
+#              | default(tower_licenses_defaults.survey_spec)
+#              | to_json }}
+#       when: tower_licenses_with_survey | length > 0
+#       vars:
+#         tower_licenses_with_survey: >-
+#           {{ tower_licenses | selectattr("survey_spec", "defined") | list
+#              + (tower_licenses_defaults.survey_spec is defined)
+#                | ternary(tower_licenses, [])
+#              | unique }}
+#   tags:
     - role::tower
-    - role::tower::templates
+    - role::tower::licenses
