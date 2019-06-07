@@ -19,4 +19,5 @@
         label: "{{ tower_setting_item.name }}"
   tags:
     - role::tower
-    - role::tower::settings
+    - role::tower::configure
+    - role::tower::configure::settings

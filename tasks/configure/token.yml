@@ -1,0 +1,25 @@
+---
+# Get authentication token tasks
+
+- block:
+    - name: Get authentication token for tower api rest
+      uri:
+        url: "{{ tower_host }}/api/v2/tokens/"
+        method: POST
+        user: "{{ tower_username }}"
+        password: "{{ tower_password }}"
+        validate_certs: "{{ tower_verify_ssl }}"
+        force_basic_auth: yes
+        status_code: 201
+        return_content: yes
+      register: tower_api_token_result
+
+    - name: Setup fact with tower api token
+      set_fact:
+        tower_token: "{{ tower_api_token_result.json.token }}"
+  tags:
+    - role::tower
+    - role::tower::configure
+    - role::tower::configure::licenses
+    - role::tower::configure::projects
+    - role::tower::configure::templates

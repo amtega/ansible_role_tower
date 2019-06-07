@@ -1,9 +1,9 @@
 {%- if tower_version is defined
-    and tower_get_releases_result.content is undefined
+    and tower_get_releases_result  is undefined
     and tower_artifact is undefined %}
 {{ tower_version }}
 {%- endif %}
-{%- if tower_get_releases_result.content is defined %}
+{%- if tower_get_releases_result is defined %}
 {%- set file = tower_get_releases_result.content.splitlines()
                  | reject("search", "ansible-tower-setup-bundle-latest")
                  | select("search", tower_package_regexp)

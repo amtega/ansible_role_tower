@@ -222,4 +222,5 @@
              | unique }}
   tags:
     - role::tower
-    - role::tower::templates
+    - role::tower::configure
+    - role::tower::configure::templates

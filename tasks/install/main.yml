@@ -5,9 +5,22 @@
     - name: Flush handlers to enfoce selinux config
       meta: flush_handlers
 
-    - include_tasks: artifact.yml
-    - include_tasks: setup.yml
-    - include_tasks: facts.yml
+    - include_tasks: repository.yml
+      when:
+        - tower_version is not defined
+        - tower_artifact is not defined
+
+    - block:
+        - include_tasks: artifact.yml
+        - include_tasks: setup.yml
+        - include_tasks: facts.yml
+      when: >-
+        tower_version_to_install
+        is not version(ansible_local_facts.version | default(0), "==")
+        or tower_force_install
+      vars:
+        ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
+
     - include_tasks: cleanup.yml
   tags:
     - role::tower

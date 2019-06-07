@@ -2,6 +2,8 @@
 # Tower configuration tasks
 
 - block:
+    - import_tasks: token.yml
+    - import_tasks: license.yml
     - import_tasks: settings.yml
     - import_tasks: users.yml
     - import_tasks: credentials.yml
@@ -12,3 +14,12 @@
   tags:
     - role::tower
     - role::tower::configure
+    - role::tower::configure::credentials
+    - role::tower::configure::inventories
+    - role::tower::configure::licenses
+    - role::tower::configure::projects
+    - role::tower::configure::roles
+    - role::tower::configure::settings
+    - role::tower::configure::templates
+    - role::tower::configure::token
+    - role::tower::configure::users

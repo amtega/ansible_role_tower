@@ -57,16 +57,54 @@
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
         tower_verify_ssl: "{{ tower_verify_ssl }}"
-      register: tower_projects_setup_result        
+      register: tower_projects_setup_result
       loop: "{{ tower_projects }}"
       loop_control:
         loop_var: tower_project_item
         label: "{{ tower_project_item.name }}"
 
-    - name: Give some time to tower to refresh projects
-      pause:
-        seconds: "{{ tower_projects_pause }}"
-      when: tower_projects_pause is defined
+    - name: Ckeck projects status
+      uri:
+        url: "{{ tower_host }}/api/v2/projects/"
+        headers:
+          Authorization: "Bearer {{ tower_token }}"
+          Content-Type: "application/json"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        validate_certs: "{{ tower_verify_ssl }}"
+      register: tower_get_projects_result
+      until: >-
+        tower_get_projects_result.json.results
+        | selectattr("name",
+                     "in",
+                     tower_projects_to_check | map(attribute="name") | list)
+        | rejectattr("status", "equalto", "successful")
+        | list
+        | length == 0
+      retries: "{{ tower_projects_get_status_retries }}"
+      delay: "{{ tower_projects_get_status_delay }}"
+      no_log: "{{ tower_no_log }}"
+      vars:
+        tower_projects_state_defined: >-
+          {{ tower_projects | selectattr("state", "defined") | list }}
+
+        tower_projects_state_undefined: >-
+          {{ tower_projects | selectattr("state", "undefined") | list }}
+
+        tower_projects_state_default_present: >-
+          {{ (tower_projects_defaults.state is defined
+              and tower_projects_defaults.state == "present")
+              | ternary(tower_projects_state_undefined, []) }}
+
+        tower_projects_state_explict_present: >-
+          {{ tower_projects_state_defined
+             | selectattr("state", "equalto", "present") | list }}
+
+        tower_projects_to_check: >-
+          {{ tower_projects_state_default_present
+             + tower_projects_state_explict_present }}
   tags:
     - role::tower
-    - role::tower::projects
+    - role::tower::configure
+    - role::tower::configure::projects

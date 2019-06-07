@@ -22,6 +22,10 @@ tower_username: admin
 
 tower_password: "{{ tower_admin_password }}"
 
+# Dicitionary with the tower license info
+
+#tower_license:
+
 # Verify or not SSL certs from AWX host url
 
 tower_verify_ssl: no
@@ -58,8 +62,6 @@ tower_force_install: no
 
 tower_install_args: []
 
-
-
 # List of dicts with the settings to setup. Each dict can contain the following
 # attributes with the same meaning that in ansible `tower_settings` module:
 #
@@ -73,7 +75,7 @@ tower_install_args: []
 tower_settings: []
 
 # List of dicts with the users to setup. Each dict can contain the following
-# attributes with the same meaning that in ansible `tower_user` module:
+# attributes with ENVIRONMENTthe same meaning that in ansible `tower_user` module:
 #
 # - auditor
 # - email
@@ -162,9 +164,13 @@ tower_projects: []
 
 tower_projects_defaults: {}
 
-# Seconds to pause after projects setup to give time to awx to refresh them
+# Number of retries to get a success state after managing a project
 
-tower_projects_pause: 60
+tower_projects_get_status_retries: 5
+
+# Number of seconds to wait between project state checks
+
+tower_projects_get_status_delay: 10
 
 # List of dicts with the inventories to setup. Each dict can contain the
 # following attributes with the same meaning that in ansible `tower_inventory`

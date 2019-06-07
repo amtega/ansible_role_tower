@@ -51,4 +51,5 @@
       no_log: "{{ tower_no_log }}"
   tags:
     - role::tower
-    - role::tower::users
+    - role::tower::configure
+    - role::tower::configure::users

@@ -56,4 +56,5 @@
         label: "{{ tower_role_item.role }}"
   tags:
     - role::tower
-    - role::tower::roles
+    - role::tower::configure
+    - role::tower::configure::roles
