@@ -17,7 +17,7 @@
       when: >-
         tower_version_to_install
         is not version(ansible_local_facts.version | default(0), "==")
-        or tower_force_install
+        or tower_force_install | bool
       vars:
         ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
 

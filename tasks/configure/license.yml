@@ -11,7 +11,7 @@
         method: GET
         follow_redirects: all
         return_content: yes
-        validate_certs: "{{ tower_verify_ssl }}"
+        validate_certs: "{{ tower_validate_certs }}"
       register: tower_get_license_result
 
     - name: Setup tower license
@@ -23,7 +23,7 @@
         method: POST
         follow_redirects: all
         return_content: yes
-        validate_certs: "{{ tower_verify_ssl }}"
+        validate_certs: "{{ tower_validate_certs }}"
         body: >-
           {{ tower_license | combine({ "eula_accepted": "true" }) | to_json }}
         body_format: json

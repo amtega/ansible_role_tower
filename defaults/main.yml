@@ -28,7 +28,7 @@ tower_password: "{{ tower_admin_password }}"
 
 # Verify or not SSL certs from AWX host url
 
-tower_verify_ssl: no
+tower_validate_certs: no
 
 # NGINX ports
 
@@ -74,8 +74,39 @@ tower_install_args: []
 
 tower_settings: []
 
+# List of dicts with the organizations to setup. Each dict can contain the
+# following attributes with the same meaning that in ansible
+# `tower_organization` module:
+#
+# - description
+# - name
+# - state
+
+tower_organizations: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_orgaç` variable. The members of the dict are the same attributes
+# that the ones expected by the ansible `tower_organization` module
+
+tower_organizations_defaults: {}
+
+# List of dicts with the teams to setup. Each dict can contain the following
+# attributes with the same meaning that in ansible `tower_team` module:
+#
+# - name
+# - organization
+# - state
+
+tower_teams: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_teams` variable. The members of the dict are the same attributes
+# that the ones expected by the ansible `tower_team` module
+
+tower_teams_defaults: {}
+
 # List of dicts with the users to setup. Each dict can contain the following
-# attributes with ENVIRONMENTthe same meaning that in ansible `tower_user` module:
+# attributes with the same meaning that in ansible `tower_user` module:
 #
 # - auditor
 # - email
@@ -136,7 +167,8 @@ tower_credentials: []
 
 # Dicitionary with the defaults options to use if no other ones are specified in
 # the `tower_credentials` variable. The members of the dict are the same
-# attributes that the ones expected by the ansible `tower_credential` module
+# attributes that the ones expected by the ansible `tower_credential` module:
+
 
 tower_credentials_defaults: {}
 
@@ -152,6 +184,7 @@ tower_credentials_defaults: {}
 # - scm_credential
 # - scm_delete_on_update
 # - scm_type
+# - scm_update_cache_timeout
 # - scm_update_on_launch
 # - scm_url
 # - state
@@ -257,6 +290,17 @@ tower_inventories_sources_defaults: {}
 # - survey_enabled
 # - vault_credential
 # - verbosity
+#
+# Also, you can provide to the previous template dictionary the attribute
+# `schedules` containing a list of dictionarires with the schedules to apply to
+# the template. The structure of this dict is the followin:
+#
+# {
+#   name: <name>            # Name of the scedule
+#   rrule: <ical>           # iCal recurrence rule fot the schedule
+#   extra_data: <data>      # Extra data to run the schedule
+#   enabled: <yes_no>       # Enable or not the schedule
+#   state: <state>          # State of the shedule. Can be present or absent
 
 tower_templates: []
 

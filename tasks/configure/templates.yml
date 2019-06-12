@@ -2,6 +2,73 @@
 # Setup templates tasks
 
 - block:
+    # Seems that ansible tower_job_template module is unable to remove a
+    # template if the linked project doesn't exist. So, we apply a workaround
+    # reading all job templates and removing them using the API
+
+    - name: Read tower job template
+      uri:
+        url: "{{ tower_host }}/api/v2/job_templates/"
+        headers:
+          Authorization: "Bearer {{ tower_token }}"
+          Content-Type: "application/json"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        validate_certs: "{{ tower_validate_certs }}"
+        status_code:
+          - 200
+          - 201
+          - 202
+          - 204
+      register: tower_templates_read_result
+
+    - name: Remove job templates marked as absent
+      uri:
+        url: >-
+          {{ tower_host
+             + "/api/v2/job_templates/"
+             + tower_job_template_id
+             + "/" }}
+        headers:
+          Authorization: "Bearer {{ tower_token }}"
+          Content-Type: "application/json"
+        method: DELETE
+        follow_redirects: all
+        return_content: yes
+        validate_certs: "{{ tower_validate_certs }}"
+        status_code:
+          - 200
+          - 201
+          - 202
+          - 204
+      register: tower_templates_remove_result
+      when: tower_job_template_id | length > 0
+      loop: >-
+        {{ tower_templates
+           | selectattr("state", "defined")
+           | selectattr("state", "equalto", "absent")
+           | list
+           + (tower_templates_defaults.state | default("") == "absent")
+             | ternary(tower_templates
+                       | selectattr("state", "undefined")
+                       | list,
+                       []) }}
+      loop_control:
+        loop_var: tower_template_item
+        label: "{{ tower_template_item.name }}"
+      vars:
+        tower_job_template_search_result: >-
+          {{ tower_templates_read_result.json.results
+             | selectattr("name", "equalto", tower_template_item.name)
+             | selectattr("summary_fields.project.name",
+                          "equalto",
+                          tower_template_item.project)
+             | list }}
+        tower_job_template_id: >-
+          {{ (tower_job_template_search_result.0 | default({})).id
+             | default("") }}
+
     - name: Setup tower job templates
       tower_job_template:
         ask_credential: >-
@@ -124,7 +191,7 @@
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
-        tower_verify_ssl: "{{ tower_verify_ssl }}"
+        validate_certs: "{{ tower_validate_certs }}"
         vault_credential: >-
           {{ tower_template_item.vault_credential
              | default(tower_templates_defaults.vault_credential)
@@ -134,24 +201,21 @@
              | default(tower_templates_defaults.verbosity)
              | default(omit) }}
       register: tower_templates_setup_result
-      loop: "{{ tower_templates }}"
+      loop: >-
+        {{ tower_templates
+           | selectattr("state", "defined")
+           | selectattr("state", "equalto", "present")
+           | list
+           + (tower_templates_defaults.state | default("") == "present")
+             | ternary(tower_templates
+                       | selectattr("state", "undefined")
+                       | list,
+                       []) }}
       loop_control:
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
 
     - block:
-        - name: Get authentication token for tower api rest
-          uri:
-            url: "{{ tower_host }}/api/v2/tokens/"
-            method: POST
-            user: "{{ tower_username }}"
-            password: "{{ tower_password }}"
-            validate_certs: "{{ tower_verify_ssl }}"
-            force_basic_auth: yes
-            status_code: 201
-            return_content: yes
-          register: tower_api_token
-
         - name: Read tower job template surverys
           uri:
             url: >-
@@ -160,12 +224,12 @@
                 + tower_template_item.name
                 + "/survey_spec/" }}
             headers:
-              Authorization: "Bearer {{ tower_api_token.json.token }}"
+              Authorization: "Bearer {{ tower_token }}"
               Content-Type: "application/json"
             method: GET
             follow_redirects: all
             return_content: yes
-            validate_certs: "{{ tower_verify_ssl }}"
+            validate_certs: "{{ tower_validate_certs }}"
             status_code:
               - 200
               - 201
@@ -184,12 +248,12 @@
                 + tower_template_item.name
                 + "/survey_spec/" }}
             headers:
-              Authorization: "Bearer {{ tower_api_token.json.token }}"
+              Authorization: "Bearer {{ tower_token }}"
               Content-Type: "application/json"
             method: POST
             follow_redirects: all
             return_content: yes
-            validate_certs: "{{ tower_verify_ssl }}"
+            validate_certs: "{{ tower_validate_certs }}"
             body: "{{ tower_template_item_survey_current_survey_spec }}"
             body_format: json
             status_code:
@@ -220,6 +284,128 @@
              + (tower_templates_defaults.survey_spec is defined)
                | ternary(tower_templates, [])
              | unique }}
+      tags:
+        - role::tower::configure::templates::surverys
+
+    - block:
+        - name: Read tower job template schedules
+          uri:
+            url: >-
+              {{ tower_host
+                + "/api/v2/job_templates/"
+                + tower_template_item.name
+                + "/schedules/" }}
+            headers:
+              Authorization: "Bearer {{ tower_token }}"
+              Content-Type: "application/json"
+            method: GET
+            follow_redirects: all
+            return_content: yes
+            validate_certs: "{{ tower_validate_certs }}"
+            status_code:
+              - 200
+              - 201
+              - 202
+              - 204
+          register: tower_templates_schedules_read_result
+          loop: "{{ tower_templates_with_schedules }}"
+          loop_control:
+            loop_var: tower_template_item
+            label: "{{ tower_template_item.name }}"
+
+        - name: Setup tower job template schedules
+          uri:
+            url: "{{ tower_host }}/api/v2{{ tower_api_path }}"
+            headers:
+              Authorization: "Bearer {{ tower_token }}"
+              Content-Type: "application/json"
+            method: "{{ tower_api_method }}"
+            follow_redirects: all
+            return_content: yes
+            validate_certs: "{{ tower_validate_certs }}"
+            body: "{{ tower_api_body }}"
+            body_format: json
+            status_code:
+              - 200
+              - 201
+              - 202
+          register: tower_templates_schedules_setup_result
+          changed_when: tower_schedule_changed | bool
+          when: >-
+            tower_schedule.state == "present"
+            or (tower_schedule.state == "absent"
+                and tower_existing_schedule)
+          loop: >-
+            {{ tower_templates_with_schedules | subelements("schedules") }}
+          loop_control:
+            loop_var: tower_template_item
+            label: >-
+              {{ tower_template.name }} /
+              {{ tower_schedule.name }}
+          vars:
+            tower_template: "{{ tower_template_item.0 }}"
+            tower_schedule: "{{ tower_template_item.1 }}"
+
+            tower_existing_schedules: >-
+              {{ (tower_templates_schedules_read_result.results
+                  | selectattr("tower_template_item.name",
+                               "equalto",
+                               tower_template.name)
+                  | list
+                  | first).json.results }}
+
+            tower_template_found_schedules: >-
+              {{ tower_existing_schedules
+                  | selectattr("name", "equalto", tower_schedule.name)
+                  | list }}
+
+            tower_existing_schedule: >-
+              {{ (tower_template_found_schedules | length == 1)
+                 | ternary(tower_template_found_schedules | first,
+                           false) }}
+
+            tower_schedule_overrides: >-
+              {{ (tower_existing_schedule)
+                 | ternary({},
+                           { "unified_job_template":
+                             tower_existing_schedule.unified_job_template
+                             | default("") }) }}
+
+            tower_api_path: >-
+              {{ (not tower_existing_schedule)
+                 | ternary("/job_templates/"
+                           + tower_template.name
+                           + "/schedules/",
+                           "/schedules/"
+                           + tower_existing_schedule.id
+                             | default("")
+                             | string
+                           + "/") }}
+
+            tower_api_method: >-
+              {{ (not tower_existing_schedule)
+                 | ternary("POST",
+                           (tower_schedule.state == "absent")
+                           | ternary("DELETE", "PATCH")) }}
+
+            tower_api_body: >-
+              {{ tower_schedule
+                 | combine(tower_schedule_overrides)
+                 | to_json }}
+
+            tower_schedule_changed: >-
+              tower_existing_schedule.rrule | default("")
+              != tower_schedule.rrule | default("")
+              or tower_existing_schedule.extra_data | default({})
+                 != tower_schedule.extra_data | default({})
+              or tower_existing_schedule.enabled | default("")
+                 != tower_schedule.enabled | default("")
+      when: tower_templates_with_schedules | length > 0
+      vars:
+        tower_templates_with_schedules: >-
+          {{ tower_templates | selectattr("schedules", "defined") | list }}
+      tags:
+        - role::tower::configure::templates::schedules
   tags:
     - role::tower
     - role::tower::configure

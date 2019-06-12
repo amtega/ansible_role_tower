@@ -35,7 +35,7 @@
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
-        tower_verify_ssl: "{{ tower_verify_ssl }}"
+        validate_certs: "{{ tower_validate_certs }}"
         username: >-
           {{ tower_user_item.username
              | default(tower_users_defaults.username) }}
@@ -43,6 +43,7 @@
         tower_user_item.force_update
         | default(tower_users_defaults.force_update)
         | default(false)
+        | bool
       register: tower_users_setup_result
       loop: "{{ tower_users }}"
       loop_control:

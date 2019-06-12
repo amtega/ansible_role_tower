@@ -32,7 +32,7 @@
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
-        tower_verify_ssl: "{{ tower_verify_ssl }}"
+        validate_certs: "{{ tower_validate_certs }}"
         variables: >-
           {{ tower_inventory_item.variables
              | default(tower_inventories_defaults.variables)
@@ -111,7 +111,7 @@
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
-        tower_verify_ssl: "{{ tower_verify_ssl }}"
+        validate_certs: "{{ tower_validate_certs }}"
         update_cache_timeout: >-
           {{ tower_inventory_item.1.update_cache_timeout
              | default(tower_inventories_sources_defaults.update_cache_timeout)

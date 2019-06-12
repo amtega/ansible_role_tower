@@ -40,6 +40,10 @@
           {{ tower_project_item.scm_type
              | default(tower_projects_defaults.scm_type)
              | default(omit) }}
+        scm_update_cache_timeout: >-
+          {{ tower_project_item.scm_update_cache_timeout
+             | default(tower_projects_defaults.scm_update_cache_timeout)
+             | default(omit) }}
         scm_update_on_launch: >-
           {{ tower_project_item.scm_update_on_launch
              | default(tower_projects_defaults.scm_update_on_launch)
@@ -56,14 +60,14 @@
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
-        tower_verify_ssl: "{{ tower_verify_ssl }}"
+        validate_certs: "{{ tower_validate_certs }}"
       register: tower_projects_setup_result
       loop: "{{ tower_projects }}"
       loop_control:
         loop_var: tower_project_item
         label: "{{ tower_project_item.name }}"
 
-    - name: Ckeck projects status
+    - name: Ckeck tower projects status
       uri:
         url: "{{ tower_host }}/api/v2/projects/"
         headers:
@@ -72,7 +76,7 @@
         method: GET
         follow_redirects: all
         return_content: yes
-        validate_certs: "{{ tower_verify_ssl }}"
+        validate_certs: "{{ tower_validate_certs }}"
       register: tower_get_projects_result
       until: >-
         tower_get_projects_result.json.results
