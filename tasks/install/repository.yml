@@ -1,0 +1,11 @@
+---
+# Tower repository  tasks
+
+- name: Get tower repo info from official site
+  uri:
+    url: "{{ tower_repo_url }}"
+    return_content: yes
+  register: tower_get_releases_result
+  tags:
+    - role::tower
+    - role::tower::install

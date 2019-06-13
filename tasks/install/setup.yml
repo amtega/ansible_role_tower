@@ -1,0 +1,33 @@
+---
+# Ansible tower setup tasks
+
+- block:
+    - name: Prepare tower setup inventory
+      template:
+        src: inventory.j2
+        dest: "{{ tower_setup_dir }}/inventory"
+        mode: 0660
+
+    - name: Run tower setup
+      command: >-
+        ./setup.sh
+        -e nginx_http_port={{ tower_nginx_http_port }}
+        -e nginx_https_port={{ tower_nginx_https_port }}
+        {{ (tower_nginx_disable_https)
+           | ternary("-e nginx_disable_https=true", "") }}
+        {{ tower_install_args | join(' ') }}
+      args:
+        chdir: "{{ tower_setup_dir }}"
+      register: tower_setup_result
+      failed_when: >-
+        not tower_setup_result.stdout
+        is search("The setup process completed successfully")
+  vars:
+    tower_setup_dir: >-
+      {{ "/tmp/ansible-tower-setup-bundle-"
+         + tower_version_to_install
+         + ".el"
+         + ansible_facts.distribution_major_version | string }}
+  tags:
+    - role::tower
+    - role::tower::install

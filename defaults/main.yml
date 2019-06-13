@@ -1,2 +1,353 @@
 ---
 # Role default lower priority variables
+
+# Tower version. If not defined the role will take the last version available in
+# official repository
+
+#tower_version:
+
+# Admin password. Only used during install
+
+tower_admin_password: password
+
+# Host url to use for config items management
+
+tower_host: "http://localhost:{{ tower_nginx_http_port }}"
+
+# Username to use for config items management
+
+tower_username: admin
+
+# Password to use for config items management
+
+tower_password: "{{ tower_admin_password }}"
+
+# Dicitionary with the tower license info
+
+#tower_license:
+
+# Verify or not SSL certs from AWX host url
+
+tower_validate_certs: no
+
+# NGINX ports
+
+tower_nginx_http_port: 80
+tower_nginx_disable_https: no
+tower_nginx_https_port: 443
+
+# Postgresql settings
+
+tower_pg_host: ""
+tower_pg_port: ""
+
+tower_pg_database: tower
+tower_pg_username: tower
+tower_pg_password: tower
+
+# Rabbitmq settings
+
+tower_rabbitmq_port: 5672
+tower_rabbitmq_vhost: tower
+tower_rabbitmq_username: tower
+tower_rabbitmq_password: tower
+tower_rabbitmq_cookie: cookiemonster
+
+# Force install even if the role detects that it is not necessary
+
+tower_force_install: no
+
+# List of strings with the install extra arguments. See tower quick install
+# guide for details
+
+tower_install_args: []
+
+# List of dicts with the settings to setup. Each dict can contain the following
+# attributes with the same meaning that in ansible `tower_settings` module:
+#
+# - name
+# - value
+#
+# Additionally you can pass the key `update` with a boolean value to indicate if
+# the setting should be updated or not (default is true). This is useful to
+# manage idempotence in options like passwords
+
+tower_settings: []
+
+# List of dicts with the organizations to setup. Each dict can contain the
+# following attributes with the same meaning that in ansible
+# `tower_organization` module:
+#
+# - description
+# - name
+# - state
+
+tower_organizations: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_orgaç` variable. The members of the dict are the same attributes
+# that the ones expected by the ansible `tower_organization` module
+
+tower_organizations_defaults: {}
+
+# List of dicts with the teams to setup. Each dict can contain the following
+# attributes with the same meaning that in ansible `tower_team` module:
+#
+# - name
+# - organization
+# - state
+
+tower_teams: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_teams` variable. The members of the dict are the same attributes
+# that the ones expected by the ansible `tower_team` module
+
+tower_teams_defaults: {}
+
+# List of dicts with the users to setup. Each dict can contain the following
+# attributes with the same meaning that in ansible `tower_user` module:
+#
+# - auditor
+# - email
+# - first_name
+# - last_name
+# - password
+# - state
+# - superuser
+# - username
+#
+# Additionally the following attributes can be used:
+#
+# - force_update: <yes|no>     # Force update. Needed if passwords were changed
+
+tower_users: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_users` variable. The members of the dict are the same attributes that
+# the ones expected by the ansible `tower_user` module
+
+tower_users_defaults: {}
+
+# List of dicts with the credentials to setup. Each dict can contain the
+# following attributes with the same meaning that in ansible `tower_credential`
+# module:
+#
+# - authorize
+# - authorize_password
+# - become_method
+# - become_password
+# - become_username
+# - client
+# - description
+# - domain
+# - host
+# - kind
+# - name
+# - organization
+# - password
+# - project
+# - secret
+# - security_token
+# - ssh_key_data
+# - ssh_key_unlock
+# - state
+# - subscription
+# - team
+# - tenant
+# - user
+# - username
+# - vault_password
+#
+# Additionally the following attributes can be used:
+#
+# - force_update: <yes|no>     # Force update. Needed if passwords were changed
+
+tower_credentials: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_credentials` variable. The members of the dict are the same
+# attributes that the ones expected by the ansible `tower_credential` module:
+
+
+tower_credentials_defaults: {}
+
+# List of dicts with the projects to setup. Each dict can contain the following
+# attributes with the same meaning that in ansible `tower_project` module:
+#
+# - description
+# - local_path
+# - name
+# - organization
+# - scm_branch
+# - scm_clean
+# - scm_credential
+# - scm_delete_on_update
+# - scm_type
+# - scm_update_cache_timeout
+# - scm_update_on_launch
+# - scm_url
+# - state
+
+tower_projects: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_projects` variable. The members of the dict are the same
+# attributes that the ones expected by the ansible `tower_project` module
+
+tower_projects_defaults: {}
+
+# Number of retries to get a success state after managing a project
+
+tower_projects_get_status_retries: 5
+
+# Number of seconds to wait between project state checks
+
+tower_projects_get_status_delay: 10
+
+# List of dicts with the inventories to setup. Each dict can contain the
+# following attributes with the same meaning that in ansible `tower_inventory`
+# module:
+#
+# - description
+# - host_filter
+# - kind
+# - name
+# - organization
+# - state
+# - variables
+#
+# Additionally you can specify the inventory sources to use as a list of dicts
+# in the attribute `sources`. The members of each dict are the same attributes
+# that the ones expected by the ansible `tower_inventory_source` module:
+#
+# - credential
+# - description
+# - group_by
+# - instance_filters
+# - inventory
+# - name
+# - overwrite
+# - overwrite_vars
+# - source
+# - source_path
+# - source_project
+# - source_regions
+# - source_script
+# - source_vars
+# - state
+# - timeout
+# - update_cache_timeout
+# - update_on_launch
+
+tower_inventories: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_inventories` variable. The members of the dict are the same
+# attributes that the ones expected by the ansible `tower_inventory` module
+
+tower_inventories_defaults: {}
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_inventories.sources` items. The members of the dict are the same
+# attributes that the ones expected by the ansible `tower_inventory_source`
+# module
+
+tower_inventories_sources_defaults: {}
+
+# List of dicts with the job templates to setup. Each dict can contain the
+# following attributes with the same meaning that in ansible
+# `tower_job_template` module:
+#
+# - ask_credential
+# - ask_diff_mode
+# - ask_extra_vars
+# - ask_inventory
+# - ask_job_type
+# - ask_limit
+# - ask_skip_tags
+# - ask_tags
+# - ask_verbosity
+# - become_enabled
+# - concurrent_jobs_enabled
+# - credential
+# - description
+# - extra_vars_path
+# - fact_caching_enabled
+# - force_handlers_enabled
+# - forks
+# - host_config_key
+# - inventory
+# - job_tags
+# - job_type
+# - limit
+# - name
+# - playbook
+# - project
+# - skip_tags
+# - start_at_task
+# - state
+# - survey_enabled
+# - vault_credential
+# - verbosity
+#
+# Also, you can provide to the previous template dictionary the attribute
+# `schedules` containing a list of dictionarires with the schedules to apply to
+# the template. The structure of this dict is the followin:
+#
+# {
+#   name: <name>            # Name of the scedule
+#   rrule: <ical>           # iCal recurrence rule fot the schedule
+#   extra_data: <data>      # Extra data to run the schedule
+#   enabled: <yes_no>       # Enable or not the schedule
+#   state: <state>          # State of the shedule. Can be present or absent
+
+tower_templates: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_templates` variable. The members of the dict are the same attributes
+# that the ones expected by the ansible `tower_inventory_source` module
+
+tower_templates_defaults: {}
+
+# List of dicts with the roles to setup. Each dict can contain the following
+# attributes with the same meaning that in ansible `tower_role` module:
+#
+# - credential
+# - inventory
+# - job_template
+# - organization
+# - project
+# - role
+# - state
+# - target_team
+# - team
+# - user
+
+tower_roles: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `tower_roles` variable. The members of the dict are the same attributes that
+# the ones expected by the ansible `tower_role` module
+
+tower_roles_defaults: {}
+
+# Hide sensitive information
+
+tower_no_log: yes
+
+# Artifact download config
+#
+# The role will try to identify the Tower artifact to download from the the
+# official site.
+#
+# If you want to download the artifact from another repository yo need to
+# configure the `tower_artifact` variable to point to a local/public repository
+# that contains the required artifact
+#
+# Take a look to `amtega.artifact` role documentation to known about supported
+# types of artifacts, their specific settings and how to configure a proxy if
+# necessary. The attributes `id`, `unarchive` of the artifact will be overriden,
+# so they are not mandatory
+
+# tower_artifact:

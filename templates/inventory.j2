@@ -1,0 +1,21 @@
+[tower]
+localhost ansible_connection=local
+
+[database]
+
+[all:vars]
+admin_password='{{ tower_admin_password }}'
+
+pg_host='{{ tower_pg_host }}'
+pg_port='{{ tower_pg_port }}'
+pg_database='{{ tower_pg_database }}'
+pg_username='{{ tower_pg_username }}'
+pg_password='{{ tower_pg_password }}'
+
+rabbitmq_port={{ tower_rabbitmq_port }}
+rabbitmq_vhost='{{ tower_rabbitmq_vhost }}'
+rabbitmq_username='{{ tower_rabbitmq_username }}'
+rabbitmq_password='{{ tower_rabbitmq_password }}'
+rabbitmq_cookie='{{ tower_rabbitmq_cookie }}'
+
+isolated_key_generation=true

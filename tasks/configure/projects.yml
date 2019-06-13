@@ -1,0 +1,114 @@
+---
+# Setup projects tasks
+
+- block:
+    - name: Setup tower projects
+      tower_project:
+        description: >-
+          {{ tower_project_item.description
+             | default(tower_projects_defaults.description)
+             | default(omit) }}
+        local_path: >-
+          {{ tower_project_item.local_path
+             | default(tower_projects_defaults.local_path)
+             | default(omit) }}
+        name: >-
+          {{ tower_project_item.name
+             | default(tower_projects_defaults.name)
+             | default(omit) }}
+        organization: >-
+          {{ tower_project_item.organization
+             | default(tower_projects_defaults.organization)
+             | default(omit) }}
+        scm_branch: >-
+          {{ tower_project_item.scm_branch
+             | default(tower_projects_defaults.scm_branch)
+             | default(omit) }}
+        scm_clean: >-
+          {{ tower_project_item.scm_clean
+             | default(tower_projects_defaults.scm_clean)
+             | default(omit) }}
+        scm_credential: >-
+          {{ tower_project_item.scm_credential
+             | default(tower_projects_defaults.scm_credential)
+             | default(omit) }}
+        scm_delete_on_update: >-
+          {{ tower_project_item.scm_delete_on_update
+             | default(tower_projects_defaults.scm_delete_on_update)
+             | default(omit) }}
+        scm_type: >-
+          {{ tower_project_item.scm_type
+             | default(tower_projects_defaults.scm_type)
+             | default(omit) }}
+        scm_update_cache_timeout: >-
+          {{ tower_project_item.scm_update_cache_timeout
+             | default(tower_projects_defaults.scm_update_cache_timeout)
+             | default(omit) }}
+        scm_update_on_launch: >-
+          {{ tower_project_item.scm_update_on_launch
+             | default(tower_projects_defaults.scm_update_on_launch)
+             | default(omit) }}
+        scm_url: >-
+          {{ tower_project_item.scm_url
+             | default(tower_projects_defaults.scm_url)
+             | default(omit) }}
+        state: >-
+          {{ tower_project_item.state
+             | default(tower_projects_defaults.state)
+             | default(omit) }}
+        tower_config_file: "{{ tower_config_file | default(omit) }}"
+        tower_host: "{{ tower_host }}"
+        tower_password: "{{ tower_password }}"
+        tower_username: "{{ tower_username }}"
+        validate_certs: "{{ tower_validate_certs }}"
+      register: tower_projects_setup_result
+      loop: "{{ tower_projects }}"
+      loop_control:
+        loop_var: tower_project_item
+        label: "{{ tower_project_item.name }}"
+
+    - name: Ckeck tower projects status
+      uri:
+        url: "{{ tower_host }}/api/v2/projects/"
+        headers:
+          Authorization: "Bearer {{ tower_token }}"
+          Content-Type: "application/json"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        validate_certs: "{{ tower_validate_certs }}"
+      register: tower_get_projects_result
+      until: >-
+        tower_get_projects_result.json.results
+        | selectattr("name",
+                     "in",
+                     tower_projects_to_check | map(attribute="name") | list)
+        | rejectattr("status", "equalto", "successful")
+        | list
+        | length == 0
+      retries: "{{ tower_projects_get_status_retries }}"
+      delay: "{{ tower_projects_get_status_delay }}"
+      no_log: "{{ tower_no_log }}"
+      vars:
+        tower_projects_state_defined: >-
+          {{ tower_projects | selectattr("state", "defined") | list }}
+
+        tower_projects_state_undefined: >-
+          {{ tower_projects | selectattr("state", "undefined") | list }}
+
+        tower_projects_state_default_present: >-
+          {{ (tower_projects_defaults.state is defined
+              and tower_projects_defaults.state == "present")
+              | ternary(tower_projects_state_undefined, []) }}
+
+        tower_projects_state_explict_present: >-
+          {{ tower_projects_state_defined
+             | selectattr("state", "equalto", "present") | list }}
+
+        tower_projects_to_check: >-
+          {{ tower_projects_state_default_present
+             + tower_projects_state_explict_present }}
+  tags:
+    - role::tower
+    - role::tower::configure
+    - role::tower::configure::projects
