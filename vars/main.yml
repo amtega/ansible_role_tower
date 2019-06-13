@@ -44,7 +44,3 @@ tower_artifact_overriden: >-
 # Facts path
 
 tower_facts_file_path: /etc/ansible/facts.d/tower.fact
-
-# Path to credentials files
-
-tower_credentials_path: ~/.ssh

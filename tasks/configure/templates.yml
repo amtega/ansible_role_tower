@@ -61,10 +61,15 @@
         tower_job_template_search_result: >-
           {{ tower_templates_read_result.json.results
              | selectattr("name", "equalto", tower_template_item.name)
+             | selectattr("summary_fields.project", "defined")
              | selectattr("summary_fields.project.name",
                           "equalto",
                           tower_template_item.project)
-             | list }}
+             | list
+             + tower_templates_read_result.json.results
+               | selectattr("name", "equalto", tower_template_item.name)
+               | selectattr("summary_fields.project", "undefined")
+               | list }}
         tower_job_template_id: >-
           {{ (tower_job_template_search_result.0 | default({})).id
              | default("") }}

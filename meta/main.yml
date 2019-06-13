@@ -39,6 +39,10 @@ dependencies:
         rhel:
           all:
             rhel-server-rhscl-7-rpms: present
+      packages_python:
+        all:
+          all:
+            ansible-tower-cli: present
     tags:
       - role::tower
       - role::tower::install
