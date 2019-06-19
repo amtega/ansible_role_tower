@@ -45,4 +45,4 @@
   tags:
     - role::tower
     - role::tower::configure
-    - role::tower::configure::licenses
+    - role::tower::configure::license
