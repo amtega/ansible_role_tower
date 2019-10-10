@@ -1,0 +1,23 @@
+---
+# Tower install tasks
+
+- block:
+    - include_tasks: repository.yml
+      when:
+        - tower_version is not defined
+        - tower_artifact is not defined
+
+    - include_tasks: artifact.yml
+      when: need_install
+
+    - block:
+        - include_tasks: setup.yml
+      when: need_install
+
+    - include_tasks: cleanup.yml
+      when: need_install
+      tags:
+        - role::tower::install::cleanup
+  tags:
+    - role::tower
+    - role::tower::install

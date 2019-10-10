@@ -1,8 +1,9 @@
 {%- if tower_version is defined
-    and tower_get_releases_result  is undefined
-    and tower_artifact is undefined %}
+    and ((tower_get_releases_result is undefined
+         and tower_artifact is undefined)
+         or tower_type == "awx") %}
 {{ tower_version }}
-{%- endif %}
+{%- else %}
 {%- if tower_get_releases_result is defined %}
 {%- set file = tower_get_releases_result.content.splitlines()
                  | reject("search", "ansible-tower-setup-bundle-latest")
@@ -14,4 +15,5 @@
 {%- if tower_artifact is defined %}
 {%- set file = tower_artifact.file %}
 {{ file | regex_replace("ansible-tower-setup-bundle-([0-9.-]+)\.el.\.tar.gz", "\\1") }}
+{%- endif %}
 {%- endif %}

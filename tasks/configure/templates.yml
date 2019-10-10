@@ -6,7 +6,7 @@
     # template if the linked project doesn't exist. So, we apply a workaround
     # reading all job templates and removing them using the API
 
-    - name: Read tower job template
+    - name: Read tower job templates
       uri:
         url: "{{ tower_host }}/api/v2/job_templates/"
         headers:
@@ -186,6 +186,44 @@
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
 
+    - name: Ckeck tower templates status
+      uri:
+        url: "{{ tower_host }}/api/v2/job_templates/"
+        headers:
+          Authorization: "Bearer {{ tower_token }}"
+          Content-Type: "application/json"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        validate_certs: "{{ tower_validate_certs }}"
+      register: tower_check_templates_result
+      until: >-
+        tower_templates_to_check | map(attribute="name") | list
+        is subset(tower_check_templates_result.json.results
+                  | map(attribute="name") | list)
+      retries: "{{ tower_templates_get_status_retries }}"
+      delay: "{{ tower_templates_get_status_delay }}"
+      no_log: "{{ tower_no_log }}"
+      vars:
+        tower_templates_state_defined: >-
+          {{ tower_templates | selectattr("state", "defined") | list }}
+
+        tower_templates_state_undefined: >-
+          {{ tower_templates | selectattr("state", "undefined") | list }}
+
+        tower_templates_state_default_present: >-
+          {{ (tower_templates_defaults.state is defined
+              and tower_templates_defaults.state == "present")
+              | ternary(tower_templates_state_undefined, []) }}
+
+        tower_templates_state_explict_present: >-
+          {{ tower_templates_state_defined
+             | selectattr("state", "equalto", "present") | list }}
+
+        tower_templates_to_check: >-
+          {{ tower_templates_state_default_present
+             + tower_templates_state_explict_present }}
+
     - name: Setup tower job template virtualenvs
       uri:
         url: >-
@@ -304,7 +342,7 @@
                | ternary(tower_templates, [])
              | unique }}
       tags:
-        - role::tower::configure::templates::surverys
+        - role::tower::configure::templates::surveys
 
     - block:
         - name: Read tower job template schedules

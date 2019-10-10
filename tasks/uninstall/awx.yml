@@ -1,0 +1,55 @@
+---
+# Uninstall tasks
+
+- block:
+    - name: Stop AWX service
+      service:
+        name: awx
+        state: stopped
+        enabled: yes
+
+    - name: Remove AWX repository files
+      file:
+        path: "{{ tower_awx_rabbitmq_repo_item }}"
+        state: absent
+      loop:
+        - "{{ tower_awx_repos_dir }}/{{ tower_awx_repo_file }}"
+        - "{{ tower_awx_repos_dir }}/{{ tower_rabbitmq_server_repo_file }}"
+        - "{{ tower_awx_repos_dir }}/{{ tower_rabbitmq_erlang_repo_file }}"
+      loop_control:
+        loop_var: tower_awx_rabbitmq_repo_item
+
+    - name: Remove downloaded configuration file
+      file:
+        path: "{{ tower_nginx_config_dir }}/{{ tower_nginx_config_file }}"
+        state: absent
+
+    - name: Uninstall AWX required packages
+      package:
+        name: "{{ tower_awx_package_item }}"
+        state: absent
+      loop: "{{ tower_awx_required_packages }}"
+      loop_control:
+        loop_var: tower_awx_package_item
+
+    - name: Uninstall python packages
+      shell: >-
+        yum -y remove --disablerepo='*' \
+        --enablerepo='{{ tower_awx_python_enable_repo_option }}' \
+        -x {{ tower_awx_python_excludes }} \
+        {{ tower_awx_python_packages_pattern }}
+      args:
+        warn: false
+
+    - name: Uninstall AWX package
+      package:
+        name: "{{ tower_awx_package }}"
+        state: absent
+
+    - name: Clean postgresql10 data directory
+      file:
+        path: "{{ tower_postgresql10_data_dir }}"
+        state: absent
+  tags:
+    - role::tower
+    - role::tower::uninstall

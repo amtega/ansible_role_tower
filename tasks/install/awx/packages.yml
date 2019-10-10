@@ -1,0 +1,48 @@
+---
+# Packages install tasks
+
+- name: Install AWX required packages
+  package:
+    name: "{{ tower_awx_package_item }}"
+    state: present
+  notify: tower restart
+  loop: "{{ tower_awx_required_packages }}"
+  loop_control:
+    loop_var: tower_awx_package_item
+
+- name: Install python packages
+  shell: >-
+    yum -y install --disablerepo='*' \
+    --enablerepo='{{ tower_awx_python_enable_repo_option }}' \
+    -x {{ tower_awx_python_excludes }} \
+    {{ tower_awx_python_packages_pattern }}
+  args:
+      warn: no
+  register: tower_awx_install_python_result
+  changed_when: >-
+    tower_awx_install_python_result.stdout is search("Complete!")
+  failed_when: >-
+    not tower_awx_install_python_result.stdout is search("Complete!")
+    and not tower_awx_install_python_result.stdout
+            is search("Nothing to do")
+  notify: tower restart
+  environment:
+    LANGUAGE: en_US
+
+
+# Work around to avoid install task return changed when awx package is already
+# installed
+
+- name: Gather package facts
+  package_facts:
+
+- debug: msg="{{ ansible_facts.packages.keys() | list }}"
+
+- debug: var=tower_awx_package
+
+- name: Install AWX package
+  package:
+    name: "{{ tower_awx_package }}"
+    state: present
+  notify: tower restart
+  when: tower_awx_package not in ansible_facts.packages.keys() | list

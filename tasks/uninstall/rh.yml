@@ -1,0 +1,14 @@
+---
+# Uninstall tasks
+
+- block:
+    - name: Stop tower services
+      shell: ansible-tower-service stop
+
+    - name: Remove tower packages
+      package:
+        name: "ansible-tower*"
+        state: absent
+  tags:
+    - role::tower
+    - role::tower::uninstall

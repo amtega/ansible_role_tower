@@ -22,6 +22,8 @@
       failed_when: >-
         not tower_setup_result.stdout
         is search("The setup process completed successfully")
+      environment:
+        ANSIBLE_INJECT_FACT_VARS: true
   vars:
     tower_setup_dir: >-
       {{ "/tmp/ansible-tower-setup-bundle-"

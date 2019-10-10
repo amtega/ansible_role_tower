@@ -6,6 +6,14 @@
 
 #tower_version:
 
+# Type of tower product. Can be tower or awx
+
+tower_type: awx
+
+# Tower state. Can be present or absent
+
+tower_state: present
+
 # Admin password. Only used during install
 
 tower_admin_password: password
@@ -175,6 +183,7 @@ tower_credentials_defaults: {}
 # List of dicts with the projects to setup. Each dict can contain the following
 # attributes with the same meaning that in ansible `tower_project` module:
 #
+# - custom_virtualenv
 # - description
 # - local_path
 # - name
@@ -204,6 +213,14 @@ tower_projects_get_status_retries: 5
 # Number of seconds to wait between project state checks
 
 tower_projects_get_status_delay: 10
+
+# Number of retries to get a success state after managing a template
+
+tower_templates_get_status_retries: 5
+
+# Number of seconds to wait between template state checks
+
+tower_templates_get_status_delay: 10
 
 # List of dicts with the inventories to setup. Each dict can contain the
 # following attributes with the same meaning that in ansible `tower_inventory`
@@ -336,7 +353,8 @@ tower_roles_defaults: {}
 
 tower_no_log: yes
 
-# Artifact download config
+# Artifact download config. This is only used when variable `tower_type` is set
+# to `rh`
 #
 # The role will try to identify the Tower artifact to download from the the
 # official site.

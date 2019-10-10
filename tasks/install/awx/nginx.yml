@@ -1,0 +1,10 @@
+---
+# nginx install tasks
+
+- name: Setup nginx configuration file
+  template:
+    src: nginx.conf.j2
+    dest: "{{ tower_nginx_config_dir }}/{{ tower_nginx_config_file }}"
+    owner: root
+    group: root
+  notify: tower restart

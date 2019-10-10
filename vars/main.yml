@@ -44,3 +44,54 @@ tower_artifact_overriden: >-
 # Facts path
 
 tower_facts_file_path: /etc/ansible/facts.d/tower.fact
+
+# Tower settings file path
+
+tower_settings_path: /etc/tower/settins.py
+
+# AWX repositories directory
+
+tower_awx_repos_dir: /etc/yum.repos.d/
+
+# AWX repository file
+
+tower_awx_repo_file: ansible-awx.repo
+
+# AWX rabbitmq repository settings
+
+tower_rabbitmq_server_repo_url: >-
+  https://dl.bintray.com/rabbitmq/rpm/rabbitmq-server/v3.7.x/el/7/
+tower_rabbitmq_erlang_repo_url: >-
+   https://dl.bintray.com/rabbitmq-erlang/rpm/erlang/21/el/7/
+
+tower_rabbitmq_server_repo_file: rabbitmq.repo
+tower_rabbitmq_erlang_repo_file: rabbitmq-erlang.repo
+
+# AWX required packages
+
+tower_awx_required_packages:
+  - rabbitmq-server
+  - rh-git29
+  - rh-postgresql10
+  - memcached
+  - nginx
+
+# AWX python settings
+
+tower_awx_python_packages_pattern: rh-python36*
+tower_awx_python_enable_repo_option: >-
+  copr:copr.fedorainfracloud.org:mrmeee:ansible-awx, base
+tower_awx_python_excludes: "*-debuginfo"
+
+# AWX package
+
+tower_awx_package: "ansible-awx-{{ tower_version }}"
+
+# nginx settings
+
+tower_nginx_config_dir: /etc/nginx/
+tower_nginx_config_file:  nginx.conf
+
+# PostgreSQL data dir (for cleaning purposes)
+
+tower_postgresql10_data_dir: /var/opt/rh/rh-postgresql10/lib/pgsql/data

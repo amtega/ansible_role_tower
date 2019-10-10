@@ -4,6 +4,10 @@
 - block:
     - name: Setup tower projects
       tower_project:
+        custom_virtualenv: >-
+          {{ tower_project_item.custom_virtualenv
+             | default(tower_projects_defaults.custom_virtualenv)
+             | default(omit) }}
         description: >-
           {{ tower_project_item.description
              | default(tower_projects_defaults.description)

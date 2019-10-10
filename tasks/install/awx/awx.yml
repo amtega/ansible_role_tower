@@ -1,0 +1,73 @@
+---
+# Setup AWX tasks
+
+- name: Setup rabbitmq service
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+
+- block:
+    - name: Import AWX database
+      shell: >-
+        scl enable rh-python36 rh-postgresql10 rh-git29
+        "GIT_PYTHON_REFRESH=quiet awx-manage migrate"
+      register: tower_awx_import_db_result
+      changed_when: >-
+        not tower_awx_import_db_result.stdout
+        is search("No migrations to apply")
+      notify: tower restart
+
+    - name: Create AWX admin user
+      shell: >-
+        echo "{{ script }}" | scl enable rh-python36 rh-postgresql10
+        "GIT_PYTHON_REFRESH=quiet awx-manage shell"
+      register: tower_awx_create_admin_result
+      failed_when:
+        tower_awx_create_admin_result.rc != 0
+        and not tower_awx_create_admin_result.stderr
+            is search("Key .username.=.admin. already exists")
+      changed_when: tower_awx_create_admin_result.rc == 0
+      vars:
+        script: >-
+          from django.contrib.auth.models import User;
+          User.objects.create_superuser('admin', 'root@localhost',
+          'password')
+      notify: tower restart
+
+    - name: Create AWX instance
+      shell: >-
+        scl enable rh-python36 rh-postgresql10 rh-git29
+        "GIT_PYTHON_REFRESH=quiet awx-manage provision_instance
+        --hostname=$(hostname)"
+      register: tower_awx_create_instance_result
+      changed_when: >-
+        not tower_awx_create_instance_result.stdout
+            is search("Instance already registered")
+      notify: tower restart
+
+    - name: Register AWX queue in rabbitm
+      shell: >-
+        scl enable rh-python36 rh-postgresql10 rh-git29
+        "GIT_PYTHON_REFRESH=quiet awx-manage register_queue --queuename=tower
+        --hostnames=$(hostname)"
+      register: tower_awx_enable_rabbitmq_queue_result
+      changed_when: >-
+        not tower_awx_enable_rabbitmq_queue_result.stdout
+            is search("Instance Group already registered")
+
+    - name: Setup AWX config file settins
+      lineinfile:
+        path: "{{ tower_settings_path }}"
+        regexp: "{{ tower_setting_item }}"
+        state: absent
+      loop:
+        - ^CUSTOM_VENV_PATHS
+        - ^AWX_TASK_ENV
+      loop_control:
+        loop_var: tower_setting_item
+      notify: tower restart
+
+  vars:
+    ansible_become: yes
+    ansible_become_user: awx

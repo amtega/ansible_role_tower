@@ -131,7 +131,7 @@
       loop_control:
         loop_var: tower_inventory_item
         label: >-
-          {{ tower_inventory_item.0.name }}
+          {{ tower_inventory_item.0.name }} /
           {{ tower_inventory_item.1.name }}
   tags:
     - role::tower

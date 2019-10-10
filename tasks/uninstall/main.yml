@@ -1,0 +1,12 @@
+---
+# Install tasks
+
+- block:
+    - include_tasks: rh.yml
+      when: tower_type == "tower"
+
+    - include_tasks: awx.yml
+      when: tower_type == "awx"
+  tags:
+    - role::tower
+    - role::tower::uninstall
