@@ -1,0 +1,14 @@
+---
+# AWX tower install tasks
+
+- block:
+    - include_tasks: selinux.yml
+    - include_tasks: repositories.yml
+    - include_tasks: packages.yml
+    - include_tasks: database.yml
+    - include_tasks: awx.yml
+    - include_tasks: nginx.yml
+    - include_tasks: service.yml
+  tags:
+    - role::tower
+    - role::tower::install

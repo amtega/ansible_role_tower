@@ -1,5 +1,72 @@
 ---
 # Role tasks
 
-- import_tasks: install/main.yml
-- import_tasks: configure/main.yml
+- include_role:
+    name: amtega.check_platform
+  vars:
+    check_platform_distributions:
+      centos: 7
+
+- include_role:
+    name: amtega.proxy_client
+  vars:
+    proxy_client_permanent: yes
+
+- include_role:
+    name: amtega.epel
+
+- include_role:
+    name: amtega.packages
+  vars:
+    packages_os:
+      centos:
+        all:
+          centos-release-scl: present
+          centos-release-scl-rh: present
+          policycoreutils-python: present
+      rhel:
+        all:
+          rhel-release-scl: present
+          rhel-release-scl-rh: present
+          rhel-server-rhscl-7-rpms: present
+          policycoreutils-python: present
+    packages_python:
+      all:
+        all:
+          ansible-tower-cli: present
+
+- include_role:
+    name: amtega.selinux
+  vars:
+    selinux_mode: enforcing
+    selinux_policy: targeted
+
+- include_tasks: install/main.yml
+  when: tower_state == "present"
+  tags:
+    - role::tower
+    - role::tower::install
+
+- include_tasks: uninstall/main.yml
+  when: tower_state == "absent"
+  tags:
+    - role::tower
+    - role::tower::uninstall
+
+- include_tasks: configure/main.yml
+  when: tower_state == "present"
+  tags:
+    - role::tower
+    - role::tower::configure
+    - role::tower::configure::credentials
+    - role::tower::configure::inventories
+    - role::tower::configure::license
+    - role::tower::configure::organizations
+    - role::tower::configure::projects
+    - role::tower::configure::roles
+    - role::tower::configure::settings
+    - role::tower::configure::teams
+    - role::tower::configure::templates
+    - role::tower::configure::templates::surverys
+    - role::tower::configure::templates::schedules
+    - role::tower::configure::users

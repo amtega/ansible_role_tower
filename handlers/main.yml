@@ -1,0 +1,22 @@
+# Role handlers
+
+- name: Tower restart service
+  shell: ansible-tower-service restart
+  when: tower_type == "rh"
+  listen:
+    - tower restart
+  tags:
+    - role::tower
+    - role::tower::install
+
+- name: Tower restart AWX service
+  service:
+    name: awx
+    state: restarted
+    enabled: yes
+  when: tower_type == "awx"
+  listen:
+    - tower restart
+  tags:
+    - role::tower
+    - role::tower::install

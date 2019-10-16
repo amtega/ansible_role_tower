@@ -62,6 +62,7 @@
              | default(tower_role_item.target_team)
              + " / "
              + tower_role_item.role }}
+      ignore_errors: "{{ tower_ignore_errors }}"
   tags:
     - role::tower
     - role::tower::configure

@@ -1,0 +1,18 @@
+---
+# Uninstall tasks
+
+- block:
+    - include_tasks: common_pre.yml
+
+    - include_tasks: rh.yml
+      when: ansible_local_facts.type == "rh"
+
+    - include_tasks: awx.yml
+      when: ansible_local_facts.type == "awx"
+
+    - include_tasks: common_post.yml
+  vars:
+    ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
+  tags:
+    - role::tower
+    - role::tower::uninstall

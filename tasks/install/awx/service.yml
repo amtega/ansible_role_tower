@@ -1,0 +1,8 @@
+---
+# service install tasks
+
+- name: Start AWX tower service
+  service:
+    name: awx
+    state: started
+    enabled: yes

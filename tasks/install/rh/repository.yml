@@ -1,9 +1,9 @@
 ---
-# Tower repository  tasks
+# RH tower repository  tasks
 
-- name: Get tower repo info from official site
+- name: Get RH tower repo info from official site
   uri:
-    url: "{{ tower_repo_url }}"
+    url: "{{ tower_rh_repo_url }}"
     return_content: yes
   register: tower_get_releases_result
   tags:

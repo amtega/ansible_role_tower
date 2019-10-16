@@ -17,6 +17,7 @@
       loop_control:
         loop_var: tower_setting_item
         label: "{{ tower_setting_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors }}"
   tags:
     - role::tower
     - role::tower::configure

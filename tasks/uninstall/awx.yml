@@ -1,0 +1,60 @@
+---
+# AWX Uninstall tasks
+
+- name: Stop AWX tower service
+  service:
+    name: awx
+    state: stopped
+    enabled: yes
+  when: "'awx.service' in ansible_facts.services.keys() | list"
+
+- name: Remove AWX tower repository files
+  file:
+    path: "{{ tower_awx_rabbitmq_repo_item }}"
+    state: absent
+  loop:
+    - "{{ tower_awx_repos_dir }}/{{ tower_awx_repo_file }}"
+    - "{{ tower_awx_repos_dir }}/{{ tower_awx_rabbitmq_server_repo_file }}"
+    - "{{ tower_awx_repos_dir }}/{{ tower_awx_rabbitmq_erlang_repo_file }}"
+  loop_control:
+    loop_var: tower_awx_rabbitmq_repo_item
+
+- name: Remove AWX tower downloaded configuration file
+  file:
+    path: "{{ tower_awx_nginx_config_dir }}/{{ tower_awx_nginx_config_file }}"
+    state: absent
+
+- name: Uninstall AWX tower  required packages
+  package:
+    name: "{{ tower_awx_package_item }}"
+    state: absent
+  loop: "{{ tower_awx_required_packages }}"
+  loop_control:
+    loop_var: tower_awx_package_item
+
+- name: Uninstall AWX tower python packages
+  shell: >-
+    yum -y remove --disablerepo='*' \
+    --enablerepo='{{ tower_awx_python_enable_repo_option }}' \
+    -x {{ tower_awx_python_excludes }} \
+    {{ tower_awx_python_packages_pattern }}
+  args:
+    warn: false
+
+- name: Uninstall AWX tower remaining packages
+  package:
+    name: "{{ tower_awx_uninstall_packages_item }}"
+    state: absent
+  loop:
+    - "{{ tower_awx_package }}"
+    - "{{ tower_awx_erlang_package }}"
+  loop_control:
+    loop_var: tower_awx_uninstall_packages_item
+
+- name: Clean AWX tower files and directories
+  file:
+    path: "{{ tower_awx_uninstall_paths_item }}"
+    state: absent
+  loop: "{{ tower_awx_uninstall_paths }}"
+  loop_control:
+    loop_var: tower_awx_uninstall_paths_item

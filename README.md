@@ -1,6 +1,6 @@
 # Ansible tower role
 
-This is an [Ansible](http://www.ansible.com) role to setup Ansible Tower.
+This is an [Ansible](http://www.ansible.com) role to setup Ansible Tower. It supports Red Hat tower and AWX tower (FLOSS).
 
 ## Role Variables
 
@@ -42,3 +42,5 @@ This role is distributed in the hope that it will be useful, but WITHOUT ANY WAR
 ## Author Information
 
 - Juan Antonio Valiño García.
+- Jose Enrique Mourón Regueira
+- Based on Martin Juhl work published on https://awx.wiki

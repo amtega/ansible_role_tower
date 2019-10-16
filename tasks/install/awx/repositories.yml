@@ -1,0 +1,17 @@
+---
+# Repositories install tasks
+
+- name: Setup AWX tower repository file
+  template:
+    src: awx.repo.j2
+    dest: "{{ tower_awx_repos_dir }}/{{ tower_awx_repo_file }}"
+
+- name: Setup AWX tower rabbitmq server repository file
+  template:
+    src: rabbitmq_server_repo.j2
+    dest: "{{ tower_awx_repos_dir }}/{{ tower_awx_rabbitmq_server_repo_file }}"
+
+- name: Setup AWX tower rabbitmq erlang repo file
+  template:
+    src: rabbitmq_erlang_repo.j2
+    dest: "{{ tower_awx_repos_dir }}/{{ tower_awx_rabbitmq_erlang_repo_file }}"

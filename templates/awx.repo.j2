@@ -1,0 +1,16 @@
+[awx-rpm-complete-nogpg]
+name=AWX-RPM Complete Repo (NO GPG)
+baseurl=https://awx.wiki/repository/
+gpgcheck=0
+enabled=1
+
+[copr:copr.fedorainfracloud.org:mrmeee:ansible-awx]
+name=Copr repo for ansible-awx owned by mrmeee
+baseurl=https://copr-be.cloud.fedoraproject.org/results/mrmeee/ansible-awx/epel-7-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://copr-be.cloud.fedoraproject.org/results/mrmeee/ansible-awx/pubkey.gpg
+repo_gpgcheck=0
+enabled=1
+enabled_metadata=1

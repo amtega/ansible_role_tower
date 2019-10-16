@@ -1,5 +1,5 @@
 ---
-# Cleanup tasks
+# RH tower cleanup tasks
 
 - block:
     # We need to reload facts to refresh info from artifact role
@@ -7,12 +7,12 @@
     - name: Reload facts
       setup:
 
-    - name: Remove unnecessary files after install
+    - name: Remove RH tower unnecessary files after install
       include_role:
         name: amtega.artifact
       vars:
         artifact_list:
-          - "{{ tower_artifact_overriden | combine({'state': 'absent'}) }}"
+          - "{{ tower_rh_artifact_overriden | combine({'state': 'absent'}) }}"
   tags:
     - role::tower
     - role::tower::install
