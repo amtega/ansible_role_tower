@@ -1,14 +1,14 @@
 ---
-# Ansible tower setup tasks
+# RH tower tower setup tasks
 
 - block:
-    - name: Prepare tower setup inventory
+    - name: Prepare RH tower setup inventory
       template:
         src: inventory.j2
         dest: "{{ tower_setup_dir }}/inventory"
         mode: 0660
 
-    - name: Run tower setup
+    - name: Run RH tower setup
       command: >-
         ./setup.sh
         -e nginx_http_port={{ tower_nginx_http_port }}

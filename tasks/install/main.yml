@@ -5,9 +5,15 @@
     - include_tasks: ../common/prepare.yml
 
     - block:
+        - include_tasks: ../uninstall/main.yml
+          when:
+            - need_install
+            - ansible_local.tower is defined
+            - tower_state == "present"
+
         - include_tasks: rh/main.yml
           when:
-            - tower_type == "tower"
+            - tower_type == "rh"
             - need_install
 
         - include_tasks: awx/main.yml
@@ -20,8 +26,8 @@
         ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
         need_install: >-
           {{ tower_version_to_install
-             is not version(ansible_local_facts.version | default(0), "==")
-             or tower_type != ansible_local_facts.tower_type
+             is not version(ansible_local_facts.version | default("0"), "==")
+             or tower_type != ansible_local_facts.type
              or tower_force_install | bool }}
   tags:
     - role::tower

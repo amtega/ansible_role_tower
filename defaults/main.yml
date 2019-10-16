@@ -6,7 +6,8 @@
 
 #tower_version:
 
-# Type of tower product. Can be tower or awx
+# Type of tower product. Can be rh (Red Hat Tower) or awx (The FLOSS version of
+# tower)
 
 tower_type: awx
 
@@ -41,10 +42,10 @@ tower_validate_certs: no
 # NGINX ports
 
 tower_nginx_http_port: 80
-tower_nginx_disable_https: no
+tower_nginx_disable_https: yes
 tower_nginx_https_port: 443
 
-# Postgresql settings
+# Postgresql settings (only for rh tower)
 
 tower_pg_host: ""
 tower_pg_port: ""
@@ -53,7 +54,7 @@ tower_pg_database: tower
 tower_pg_username: tower
 tower_pg_password: tower
 
-# Rabbitmq settings
+# Rabbitmq settings  (only for rh tower)
 
 tower_rabbitmq_port: 5672
 tower_rabbitmq_vhost: tower
@@ -69,6 +70,10 @@ tower_force_install: no
 # guide for details
 
 tower_install_args: []
+
+# Ignore errors during tower assets configuration
+
+tower_ignore_errors: no
 
 # List of dicts with the settings to setup. Each dict can contain the following
 # attributes with the same meaning that in ansible `tower_settings` module:
@@ -344,8 +349,8 @@ tower_templates_defaults: {}
 tower_roles: []
 
 # Dicitionary with the defaults options to use if no other ones are specified in
-# the `tower_roles` variable. The members of the dict are the same attributes that
-# the ones expected by the ansible `tower_role` module
+# the `tower_roles` variable. The members of the dict are the same attributes
+# that the ones expected by the ansible `tower_role` module
 
 tower_roles_defaults: {}
 

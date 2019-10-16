@@ -37,6 +37,7 @@
         | combine(tower_license_overrides)
         != tower_license_setup_result.json
            | combine(tower_license_overrides)
+      ignore_errors: "{{ tower_ignore_errors }}"
       vars:
         tower_license_overrides:
           grace_period_remaining: 0

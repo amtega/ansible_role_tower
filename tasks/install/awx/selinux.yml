@@ -1,7 +1,7 @@
 ---
 # SELinix install tasks
 
-- name: Setup SELinux to permit AWX ports
+- name: Setup SELinux to permit AWX tower ports
   seport:
     ports:
       - "{{ tower_nginx_http_port | string }}"

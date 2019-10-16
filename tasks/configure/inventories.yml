@@ -42,6 +42,7 @@
       loop_control:
         loop_var: tower_inventory_item
         label: "{{ tower_inventory_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors }}"
 
     - name: Setup tower inventories sources
       tower_inventory_source:
@@ -133,6 +134,7 @@
         label: >-
           {{ tower_inventory_item.0.name }} /
           {{ tower_inventory_item.1.name }}
+      ignore_errors: "{{ tower_ignore_errors }}"
   tags:
     - role::tower
     - role::tower::configure

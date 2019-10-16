@@ -70,6 +70,7 @@
       loop_control:
         loop_var: tower_project_item
         label: "{{ tower_project_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors }}"
 
     - name: Ckeck tower projects status
       uri:

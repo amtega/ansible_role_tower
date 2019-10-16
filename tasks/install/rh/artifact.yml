@@ -1,12 +1,12 @@
 ---
-# Tower artifact download tasks
+# RH tower artifact download tasks
 
-- name: Download tower artifacts
+- name: Download RH tower artifacts
   include_role:
     name: amtega.artifact
   vars:
     artifact_list:
-      - "{{ tower_artifact_overriden }}"
+      - "{{ tower_rh_artifact_overriden }}"
   tags:
     - role::tower
     - role::tower::install

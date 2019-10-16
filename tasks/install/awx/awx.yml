@@ -1,14 +1,14 @@
 ---
-# Setup AWX tasks
+# Setup AWX tower tasks
 
-- name: Setup rabbitmq service
+- name: Setup AWX tower rabbitmq service
   service:
     name: rabbitmq-server
     state: started
     enabled: yes
 
 - block:
-    - name: Import AWX database
+    - name: Import AWX tower database
       shell: >-
         scl enable rh-python36 rh-postgresql10 rh-git29
         "GIT_PYTHON_REFRESH=quiet awx-manage migrate"
@@ -18,7 +18,7 @@
         is search("No migrations to apply")
       notify: tower restart
 
-    - name: Create AWX admin user
+    - name: Create AWX tower admin user
       shell: >-
         echo "{{ script }}" | scl enable rh-python36 rh-postgresql10
         "GIT_PYTHON_REFRESH=quiet awx-manage shell"
@@ -35,7 +35,7 @@
           'password')
       notify: tower restart
 
-    - name: Create AWX instance
+    - name: Create AWX tower instance
       shell: >-
         scl enable rh-python36 rh-postgresql10 rh-git29
         "GIT_PYTHON_REFRESH=quiet awx-manage provision_instance
@@ -46,7 +46,7 @@
             is search("Instance already registered")
       notify: tower restart
 
-    - name: Register AWX queue in rabbitm
+    - name: Register AWX tower queue in rabbitm
       shell: >-
         scl enable rh-python36 rh-postgresql10 rh-git29
         "GIT_PYTHON_REFRESH=quiet awx-manage register_queue --queuename=tower
@@ -55,19 +55,18 @@
       changed_when: >-
         not tower_awx_enable_rabbitmq_queue_result.stdout
             is search("Instance Group already registered")
-
-    - name: Setup AWX config file settins
-      lineinfile:
-        path: "{{ tower_settings_path }}"
-        regexp: "{{ tower_setting_item }}"
-        state: absent
-      loop:
-        - ^CUSTOM_VENV_PATHS
-        - ^AWX_TASK_ENV
-      loop_control:
-        loop_var: tower_setting_item
-      notify: tower restart
-
   vars:
     ansible_become: yes
     ansible_become_user: awx
+
+- name: Setup AWX tower config file settings
+  lineinfile:
+    path: "{{ tower_settings_path }}"
+    regexp: "{{ tower_setting_item }}"
+    state: absent
+  loop:
+    - CUSTOM_VENV_PATHS
+    - AWX_TASK_ENV
+  loop_control:
+    loop_var: tower_setting_item
+  notify: tower restart

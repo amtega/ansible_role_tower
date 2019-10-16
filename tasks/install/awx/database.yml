@@ -1,9 +1,9 @@
 ---
-# Database install tasks
+# AWX tower Database install tasks
 
-- name: Check postgresql10 server data directory
+- name: Check AWX tower postgresql10 server data directory
   stat:
-    path: "{{ tower_postgresql10_data_dir }}"
+    path: "{{ tower_awx_postgresql10_data_dir }}/PG_VERSION"
   register: tower_check_postgresql10_data_result
 
 - name: Initialize postgresql10 server
@@ -12,32 +12,38 @@
     "postgresql-setup --initdb --unit rh-postgresql10-postgresql"
   when: not tower_check_postgresql10_data_result.stat.exists
 
-- name: Setup postgresql10 service
+- name: Setup AWX tower postgresql10 service
   service:
     name: rh-postgresql10-postgresql
     state: started
     enabled: yes
 
-- name: Check AWX database user
+- name: Check AWX tower database user
   shell: >-
     scl enable rh-postgresql10 "su postgres
     -c \"psql -c 'select usename from pg_user'\""
     | grep " *awx *"
+  args:
+    chdir: /tmp
+  failed_when: no
   changed_when: no
   register: tower_check_postgresql10_user_result
 
-- name: Create AWX database user
+- name: Create AWX tower database user
   shell: scl enable rh-postgresql10 "su postgres -c \"createuser -S awx\""
   when: tower_check_postgresql10_user_result.stdout_lines | length == 0
 
-- name: Check AWX database
+- name: Check AWX tower database
   shell: >-
     scl enable rh-postgresql10 "su postgres
     -c \"psql -c 'select datname from pg_database'\""
     | grep " *awx *"
+  args:
+    chdir: /tmp
+  failed_when: no
   changed_when: no
   register: tower_check_postgresql10_database_result
 
-- name: Create AWX database
+- name: Create AWX tower database
   shell: scl enable rh-postgresql10 "su postgres -c \"createdb -O awx awx\""
   when: tower_check_postgresql10_database_result.stdout_lines | length == 0

@@ -7,7 +7,7 @@
 {%- if tower_get_releases_result is defined %}
 {%- set file = tower_get_releases_result.content.splitlines()
                  | reject("search", "ansible-tower-setup-bundle-latest")
-                 | select("search", tower_package_regexp)
+                 | select("search", tower_rh_package_regexp)
                  | list
                  | last %}
 {{ file | regex_replace(".*>ansible-tower-setup-bundle-([0-9.-]+)\.el.\.tar.gz<.*", "\\1") }}

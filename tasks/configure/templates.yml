@@ -48,6 +48,7 @@
       loop_control:
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors }}"
 
     - name: Setup tower job templates
       tower_job_template:
@@ -185,6 +186,7 @@
       loop_control:
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors }}"
 
     - name: Ckeck tower templates status
       uri:
@@ -196,10 +198,15 @@
         follow_redirects: all
         return_content: yes
         validate_certs: "{{ tower_validate_certs }}"
-      register: tower_check_templates_result
+        status_code:
+          - 200
+          - 201
+          - 202
+          - 204
+      register: tower_templates_read_result
       until: >-
         tower_templates_to_check | map(attribute="name") | list
-        is subset(tower_check_templates_result.json.results
+        is subset(tower_templates_read_result.json.results
                   | map(attribute="name") | list)
       retries: "{{ tower_templates_get_status_retries }}"
       delay: "{{ tower_templates_get_status_delay }}"
@@ -252,6 +259,7 @@
         loop_var: tower_template_item
         index_var: tower_template_index
         label: "{{ tower_template_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors }}"
       vars:
         tower_templates_with_virtualenv: >-
           {{ tower_templates_present_state
@@ -294,6 +302,7 @@
           loop_control:
             loop_var: tower_template_item
             label: "{{ tower_template_item.name }}"
+          ignore_errors: "{{ tower_ignore_errors }}"
 
         - name: Setup tower job template surverys
           uri:
@@ -324,6 +333,7 @@
             loop_var: tower_template_item
             index_var: tower_template_index
             label: "{{ tower_template_item.name }}"
+          ignore_errors: "{{ tower_ignore_errors }}"
           vars:
             tower_template_item_previous_survey_spec: >-
               {{ tower_templates_surverys_read_result.results
@@ -369,6 +379,7 @@
           loop_control:
             loop_var: tower_template_item
             label: "{{ tower_template_item.name }}"
+          ignore_errors: "{{ tower_ignore_errors }}"
 
         - name: Setup tower job template schedules
           uri:
@@ -399,6 +410,7 @@
             label: >-
               {{ tower_template.name }} /
               {{ tower_schedule.name }}
+          ignore_errors: "{{ tower_ignore_errors }}"
           vars:
             tower_template: "{{ tower_template_item.0 }}"
             tower_schedule: "{{ tower_template_item.1 }}"

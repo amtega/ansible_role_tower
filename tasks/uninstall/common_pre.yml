@@ -1,0 +1,5 @@
+---
+# Common pre uninstall tasks
+
+- name: Gather service facts
+  service_facts:

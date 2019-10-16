@@ -1,0 +1,10 @@
+---
+# Common post uninstall tasks
+
+- name: Remove tower fact file
+  file:
+    path: "{{ tower_facts_file_path }}"
+    state: absent
+
+- name: Reload facts
+  setup:
