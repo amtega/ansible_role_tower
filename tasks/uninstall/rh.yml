@@ -15,6 +15,11 @@
     name: "ansible-tower*"
     state: absent
 
+- name: Remove RH rabbitmq packages
+  package:
+    name: "rabbitmq-*"
+    state: absent
+
 - name: Clean RH files and directories
   file:
     path: "{{ tower_rh_uninstall_paths_item }}"

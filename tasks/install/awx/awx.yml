@@ -32,7 +32,7 @@
         script: >-
           from django.contrib.auth.models import User;
           User.objects.create_superuser('admin', 'root@localhost',
-          'password')
+          '{{ tower_admin_password }}')
       notify: tower restart
 
     - name: Create AWX tower instance
