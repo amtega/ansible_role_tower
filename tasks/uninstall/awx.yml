@@ -24,7 +24,7 @@
     path: "{{ tower_awx_nginx_config_dir }}/{{ tower_awx_nginx_config_file }}"
     state: absent
 
-- name: Uninstall AWX tower  required packages
+- name: Uninstall AWX tower required packages
   package:
     name: "{{ tower_awx_package_item }}"
     state: absent

@@ -5,10 +5,14 @@
     - include_tasks: common_pre.yml
 
     - include_tasks: rh.yml
-      when: ansible_local_facts.type == "rh"
+      when: >-
+        ansible_local_facts.type | default("") == "rh"
+        or (tower_state == "absent" and tower_type == "rh")
 
     - include_tasks: awx.yml
-      when: ansible_local_facts.type == "awx"
+      when: >-
+        ansible_local_facts.type | default("") == "awx"
+        or (tower_state == "absent" and tower_type == "awx")
 
     - include_tasks: common_post.yml
   vars:
