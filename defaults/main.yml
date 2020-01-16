@@ -292,7 +292,6 @@ tower_inventories_sources_defaults: {}
 # - ask_verbosity
 # - become_enabled
 # - concurrent_jobs_enabled
-# - credential
 # - description
 # - extra_vars_path
 # - fact_caching_enabled
@@ -310,15 +309,23 @@ tower_inventories_sources_defaults: {}
 # - start_at_task
 # - state
 # - survey_enabled
-# - vault_credential
 # - verbosity
+#
+# Also, you can provide to the previous template dictionary the attribute
+# `credentials` containing a list of dictionarires with the credentials to apply
+# to the template. The structure of this dict is the followin:
+#
+# {
+#   name: <name>            # Name of the credential
+#   type: <string>          # Type of credential. See tower docs for details
+#   state: <state>          # State of the credential. Can be present or absent
 #
 # Also, you can provide to the previous template dictionary the attribute
 # `schedules` containing a list of dictionarires with the schedules to apply to
 # the template. The structure of this dict is the followin:
 #
 # {
-#   name: <name>            # Name of the scedule
+#   name: <name>            # Name of the schedule
 #   rrule: <ical>           # iCal recurrence rule fot the schedule
 #   extra_data: <data>      # Extra data to run the schedule
 #   enabled: <yes_no>       # Enable or not the schedule
