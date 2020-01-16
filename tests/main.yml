@@ -113,6 +113,10 @@
           job_type: run
           state: present
           survey_enabled: no
+          credentials:
+            - name: test_credential
+              type: machine
+              state: present
 
         tower_templates:
           - name: test_template
