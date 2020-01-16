@@ -96,10 +96,6 @@
           {{ tower_template_item.concurrent_jobs_enabled
              | default(tower_templates_defaults.concurrent_jobs_enabled)
              | default(omit) }}
-        credential: >-
-          {{ tower_template_item.credential
-             | default(tower_templates_defaults.credential)
-             | default(omit) }}
         description: >-
           {{ tower_template_item.description
              | default(tower_templates_defaults.description)
@@ -173,10 +169,6 @@
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
         validate_certs: "{{ tower_validate_certs }}"
-        vault_credential: >-
-          {{ tower_template_item.vault_credential
-             | default(tower_templates_defaults.vault_credential)
-             | default(omit) }}
         verbosity: >-
           {{ tower_template_item.verbosity
              | default(tower_templates_defaults.verbosity)
@@ -230,6 +222,156 @@
         tower_templates_to_check: >-
           {{ tower_templates_state_default_present
              + tower_templates_state_explict_present }}
+
+    - block:
+        - name: Read tower credentials
+          uri:
+            url: "{{ tower_host }}/api/v2/credentials/"
+            headers:
+              Authorization: "Bearer {{ tower_token }}"
+              Content-Type: "application/json"
+            method: GET
+            follow_redirects: all
+            return_content: yes
+            validate_certs: "{{ tower_validate_certs }}"
+            status_code:
+              - 200
+              - 201
+              - 202
+          register: tower_templates_credentials_read_result
+
+        - name: Read tower job templates credentials
+          uri:
+            url: >-
+              {{ tower_host
+                + "/api/v2/job_templates/"
+                + tower_template_id
+                + "/credentials/" }}
+            headers:
+              Authorization: "Bearer {{ tower_token }}"
+              Content-Type: "application/json"
+            method: GET
+            follow_redirects: all
+            return_content: yes
+            validate_certs: "{{ tower_validate_certs }}"
+            status_code:
+              - 200
+              - 201
+              - 202
+          register: tower_templates_template_credentials_read_result
+          loop: "{{ tower_templates_present_state }}"
+          loop_control:
+            loop_var: tower_template_item
+            index_var: tower_template_index
+            label: "{{ tower_template_item.name }}"
+          ignore_errors: "{{ tower_ignore_errors }}"
+
+        - name: Setup tower job template credentials
+          uri:
+            url: >-
+              {{ tower_host
+                + "/api/v2/job_templates/"
+                + tower_template_id
+                + "/credentials/" }}
+            headers:
+              Authorization: "Bearer {{ tower_token }}"
+              Content-Type: "application/json"
+            method: POST
+            follow_redirects: all
+            return_content: yes
+            validate_certs: "{{ tower_validate_certs }}"
+            body: "{{ tower_api_body }}"
+            body_format: json
+            status_code:
+              - 200
+              - 201
+              - 202
+              - 204
+          register: tower_templates_credentials_setup_result
+          changed_when: >-
+            (not tower_credential_exists
+             and tower_credential.state == "present")
+            or (tower_credential_exists
+                and tower_credential.state == "absent")
+          when: >-
+            (tower_credential.state == "present"
+             and not tower_credential_exists)
+            or (tower_credential.state == "absent"
+                and tower_credential_exists)
+          loop: >-
+            {{ tower_templates_with_credentials | subelements("credentials") }}
+          loop_control:
+            loop_var: tower_template_item
+            label: >-
+              {{ tower_template.name }} /
+              {{ tower_credential.name }}
+          ignore_errors: "{{ tower_ignore_errors }}"
+          vars:
+            tower_template: "{{ tower_template_item.0 }}"
+            tower_credential: "{{ tower_template_item.1 }}"
+
+            tower_existing_credentials: >-
+              {{ (tower_templates_template_credentials_read_result.results
+                  | selectattr("tower_template_item.name",
+                               "equalto",
+                               tower_template.name)
+                  | list
+                  | first).json.results }}
+
+            tower_template_found_credentials: >-
+              {{ tower_existing_credentials
+                  | selectattr("name", "equalto", tower_credential.name)
+                  | list }}
+
+            tower_existing_credential: >-
+              {{ (tower_template_found_credentials | length == 1)
+                 | ternary(tower_template_found_credentials | first,
+                           {}) }}
+
+            tower_credential_exists: >-
+              {{ tower_existing_credential.keys() | list | length > 0 }}
+
+            tower_existing_credential_id: >-
+              {{ (tower_templates_credentials_read_result.json.results
+                  | selectattr("name", "equalto", tower_credential.name)
+                  | list
+                  | first).id }}
+
+            tower_api_body_create: >-
+              { "id": {{ tower_existing_credential_id | int }} }
+
+            tower_api_body_remove: >-
+              { "id": {{ tower_existing_credential_id | int }},
+                "disassociate": true }
+
+            tower_api_body: >-
+              {{ (tower_credential.state == "present")
+                 | ternary(
+                     (not tower_credential_exists)
+                     | ternary(tower_api_body_create, {}),
+                     (tower_credential_exists)
+                     | ternary(tower_api_body_remove, {}))
+                 | to_json
+              }}
+
+      when: tower_templates_with_credentials | length > 0
+      vars:
+        tower_templates_with_credentials: >-
+          {{ tower_templates_present_state
+             | selectattr("credentials", "defined")
+             | list
+             + (tower_templates_defaults.credentials is defined)
+               | ternary(tower_templates_present_state
+                         | selectattr("credentials", "undefined")
+                         | map("combine",
+                               { "credentials":
+                                 tower_templates_defaults.credentials
+                                 | default([]) })
+                         | list,
+                         [])
+             }}
+      tags:
+        - role::tower::configure::templates::credentials
 
     - name: Setup tower job template virtualenvs
       uri:
