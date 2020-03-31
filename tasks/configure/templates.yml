@@ -605,12 +605,12 @@
                  | to_json }}
 
             tower_schedule_changed: >-
-              tower_existing_schedule.rrule | default("")
-              != tower_schedule.rrule | default("")
-              or tower_existing_schedule.extra_data | default({})
-                 != tower_schedule.extra_data | default({})
-              or tower_existing_schedule.enabled | default("")
-                 != tower_schedule.enabled | default("")
+              {{ tower_existing_schedule.rrule | default("")
+                 != tower_schedule.rrule | default("")
+                 or tower_existing_schedule.extra_data | default({})
+                    != tower_schedule.extra_data | default({})
+                 or tower_existing_schedule.enabled | default("")
+                    != tower_schedule.enabled | default("") }}
       when: tower_templates_with_schedules | length > 0
       vars:
         tower_templates_with_schedules: >-

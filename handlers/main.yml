@@ -1,7 +1,7 @@
 # Role handlers
 
 - name: Tower restart service
-  shell: ansible-tower-service restart
+  command: ansible-tower-service restart
   when: tower_type == "rh"
   listen:
     - tower restart

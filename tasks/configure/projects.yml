@@ -113,6 +113,164 @@
         tower_projects_to_check: >-
           {{ tower_projects_state_default_present
              + tower_projects_state_explict_present }}
+
+    - block:
+        - name: Read tower project schedules
+          uri:
+            url: >-
+              {{ tower_host
+                + "/api/v2/projects/"
+                + tower_project_id
+                + "/schedules/" }}
+            headers:
+              Authorization: "Bearer {{ tower_token }}"
+              Content-Type: "application/json"
+            method: GET
+            follow_redirects: all
+            return_content: yes
+            validate_certs: "{{ tower_validate_certs }}"
+            status_code:
+              - 200
+              - 201
+              - 202
+              - 204
+          register: tower_projects_schedules_read_result
+          loop: "{{ tower_projects_with_schedules }}"
+          loop_control:
+            loop_var: tower_project_item
+            label: "{{ tower_project_item.name }}"
+          ignore_errors: "{{ tower_ignore_errors }}"
+
+        - name: Setup tower project schedules
+          uri:
+            url: "{{ tower_host }}/api/v2{{ tower_api_path }}"
+            headers:
+              Authorization: "Bearer {{ tower_token }}"
+              Content-Type: "application/json"
+            method: "{{ tower_api_method }}"
+            follow_redirects: all
+            return_content: yes
+            validate_certs: "{{ tower_validate_certs }}"
+            body: "{{ tower_api_body }}"
+            body_format: json
+            status_code:
+              - 200
+              - 201
+              - 202
+          register: tower_projects_schedules_setup_result
+          changed_when: tower_schedule_changed | bool
+          when: >-
+            tower_schedule.state == "present"
+            or (tower_schedule.state == "absent"
+                and tower_existing_schedule)
+          loop: >-
+            {{ tower_projects_with_schedules | subelements("schedules") }}
+          loop_control:
+            loop_var: tower_project_item
+            label: >-
+              {{ tower_project.name }} /
+              {{ tower_schedule.name }}
+          ignore_errors: "{{ tower_ignore_errors }}"
+          vars:
+            tower_project: "{{ tower_project_item.0 }}"
+            tower_schedule: "{{ tower_project_item.1 }}"
+
+            tower_existing_schedules: >-
+              {{ (tower_projects_schedules_read_result.results
+                  | selectattr("tower_project_item.name",
+                               "equalto",
+                               tower_project.name)
+                  | list
+                  | first).json.results }}
+
+            tower_project_found_schedules: >-
+              {{ tower_existing_schedules
+                  | selectattr("name", "equalto", tower_schedule.name)
+                  | list }}
+
+            tower_existing_schedule: >-
+              {{ (tower_project_found_schedules | length == 1)
+                 | ternary(tower_project_found_schedules | first,
+                           false) }}
+
+            tower_schedule_overrides: >-
+              {{ (tower_existing_schedule)
+                 | ternary({},
+                           { "unified_job_template":
+                             tower_existing_schedule.unified_job_template
+                             | default("") }) }}
+
+            tower_api_path: >-
+              {{ (not tower_existing_schedule)
+                 | ternary("/projects/"
+                           + tower_project_id
+                           + "/schedules/",
+                           "/schedules/"
+                           + tower_existing_schedule.id
+                             | default("")
+                             | string
+                           + "/") }}
+
+            tower_api_method: >-
+              {{ (not tower_existing_schedule)
+                 | ternary("POST",
+                           (tower_schedule.state == "absent")
+                           | ternary("DELETE", "PATCH")) }}
+
+            tower_api_body: >-
+              {{ tower_schedule
+                 | combine(tower_schedule_overrides)
+                 | to_json }}
+
+            tower_schedule_changed: >-
+              {{ tower_existing_schedule.rrule | default("")
+                 != tower_schedule.rrule | default("")
+                 or tower_existing_schedule.extra_data | default({})
+                    != tower_schedule.extra_data | default({})
+                 or tower_existing_schedule.enabled | default("")
+                    != tower_schedule.enabled | default("") }}
+      when: tower_projects_with_schedules | length > 0
+      vars:
+        tower_projects_present_state: >-
+          {{ tower_projects
+             | selectattr("state", "defined")
+             | selectattr("state", "equalto", "present")
+             | list
+             + (tower_projects_defaults.state | default("") == "present")
+               | ternary(tower_projects
+                         | selectattr("state", "undefined")
+                         | list,
+                         []) }}
+
+        tower_projects_with_schedules: >-
+          {{ tower_projects_present_state
+             | selectattr("schedules", "defined")
+             | list }}
+
+        tower_project_search_result: >-
+          {{ tower_get_projects_result.json.results
+             | selectattr("name",
+                          "equalto",
+                          tower_project_item.name
+                          | default(tower_project.name))
+             | selectattr("summary_fields.project", "defined")
+             | selectattr("summary_fields.project.name",
+                          "equalto",
+                          tower_project_item.project
+                          | default(tower_project.project))
+             | list
+             + tower_get_projects_result.json.results
+               | selectattr("name",
+                            "equalto",
+                            tower_project_item.name
+                            | default(tower_project.name))
+               | selectattr("summary_fields.project", "undefined")
+               | list }}
+        tower_project_id: >-
+          {{ (tower_project_search_result.0 | default({})).id
+             | default("") }}
+      tags:
+        - role::tower::configure::projects::schedules
   tags:
     - role::tower
     - role::tower::configure
