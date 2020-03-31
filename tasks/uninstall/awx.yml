@@ -33,11 +33,12 @@
     loop_var: tower_awx_package_item
 
 - name: Uninstall AWX tower python packages
-  shell: >-
+  command: >-
     yum -y remove --disablerepo='*' \
     --enablerepo='{{ tower_awx_python_enable_repo_option }}' \
     -x {{ tower_awx_python_excludes }} \
     {{ tower_awx_python_packages_pattern }}
+  changed_when: yes
   args:
     warn: false
 

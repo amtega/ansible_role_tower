@@ -7,7 +7,7 @@
   register: tower_check_tower_service_script
 
 - name: Stop RH tower services
-  shell: ansible-tower-service stop
+  command: ansible-tower-service stop
   when: tower_check_tower_service_script.stat.exists
 
 - name: Remove RH tower packages

@@ -6,7 +6,7 @@ galaxy_info:
   description: Setup ansible tower/awx
   company: AMTEGA - Xunta de Galicia
   license: GPLv3 or EUPL
-  min_ansible_version: 2.8.1
+  min_ansible_version: 2.9
   platforms:
     - name: EL
       versions:
@@ -18,21 +18,36 @@ galaxy_info:
 
 dependencies:
   - role: amtega.check_platform
-    tags:
-      - never
+    vars:
+      check_platform_distributions:
+        centos: 7
 
   - role: amtega.proxy_client
-    tags:
-      - never
+    vars:
+      proxy_client_permanent: yes
 
   - role: amtega.epel
-    tags:
-      - never
 
   - role: amtega.packages
-    tags:
-      - never
+    vars:
+      packages_os:
+        centos:
+          all:
+            centos-release-scl: present
+            centos-release-scl-rh: present
+            policycoreutils-python: present
+        rhel:
+          all:
+            rhel-release-scl: present
+            rhel-release-scl-rh: present
+            rhel-server-rhscl-7-rpms: present
+            policycoreutils-python: present
+      packages_python:
+        all:
+          all:
+            ansible-tower-cli: present
 
   - role: amtega.selinux
-    tags:
-      - never
+    vars:
+      selinux_mode: enforcing
+      selinux_policy: targeted

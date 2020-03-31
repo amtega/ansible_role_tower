@@ -2,7 +2,7 @@
 # Install tasks
 
 - block:
-    - include_tasks: ../common/prepare.yml
+    - include_tasks: common/prepare.yml
 
     - block:
         - include_tasks: ../uninstall/main.yml
@@ -21,7 +21,7 @@
             - tower_type == "awx"
             - need_install
 
-        - include_tasks: ../common/facts.yml
+        - include_tasks: common/facts.yml
       vars:
         ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
         need_install: >-

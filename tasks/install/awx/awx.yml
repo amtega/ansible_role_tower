@@ -9,7 +9,7 @@
 
 - block:
     - name: Import AWX tower database
-      shell: >-
+      command: >-
         scl enable rh-python36 rh-postgresql10 rh-git29
         "GIT_PYTHON_REFRESH=quiet awx-manage migrate"
       register: tower_awx_import_db_result
