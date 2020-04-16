@@ -1,0 +1,22 @@
+{% set ns = namespace(found=false) %}
+{% for result in tower_resources_results %}
+{% set object = result[result.ansible_loop_var] %}
+{% for role in object.roles | default([]) %}
+{% set ns.found = true %}
+- target_name: {{ object.name }}
+  target_id: {{ result.id }}
+  target_type: {{ result.type }}
+  role: {{ role.role }}
+{% if role.user is defined %}
+  user: {{ role.user }}
+{% endif %}
+{% if role.team is defined %}
+  team: {{ role.team }}
+{% endif %}
+  state: {{ credential.state | default("present") }}
+{% endfor %}
+{% endfor %}
+
+{% if not ns.found %}
+[]
+{% endif %}

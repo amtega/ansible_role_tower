@@ -4,47 +4,16 @@
 - block:
     # Seems that ansible tower_job_template module is unable to remove a
     # template if the linked project doesn't exist. So, we apply a workaround
-    # reading all job templates and removing them using the API
+    # calling the API REST instead of using the module
 
-    - name: Read tower job templates
-      uri:
-        url: "{{ tower_host }}/api/v2/job_templates/"
-        headers:
-          Authorization: "Bearer {{ tower_token }}"
-          Content-Type: "application/json"
-        method: GET
-        follow_redirects: all
-        return_content: yes
-        validate_certs: "{{ tower_validate_certs }}"
-        status_code:
-          - 200
-          - 201
-          - 202
-          - 204
-      register: tower_templates_read_result
-
-    - name: Remove job templates marked as absent
-      uri:
-        url: >-
-          {{ tower_host
-             + "/api/v2/job_templates/"
-             + tower_template_id
-             + "/" }}
-        headers:
-          Authorization: "Bearer {{ tower_token }}"
-          Content-Type: "application/json"
-        method: DELETE
-        follow_redirects: all
-        return_content: yes
-        validate_certs: "{{ tower_validate_certs }}"
-        status_code:
-          - 200
-          - 201
-          - 202
-          - 204
-      register: tower_templates_remove_result
-      when: tower_template_id | length > 0
-      loop: "{{ tower_templates_absent_state }}"
+    - name: Remove tower job templates
+      tower_remove_template:
+        name: "{{ tower_template_item.name }}"
+        project: "{{ tower_template_item.project | default(omit) }}"
+      loop: >-
+        {{ tower_templates_to_manage
+           | selectattr("state", "equalto", "absent")
+           | list }}
       loop_control:
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
@@ -53,617 +22,86 @@
     - name: Setup tower job templates
       tower_job_template:
         ask_credential: >-
-          {{ tower_template_item.ask_credential
-             | default(tower_templates_defaults.ask_credential)
-             | default(omit) }}
+          {{ tower_template_item.ask_credential | default(omit) }}
         ask_diff_mode: >-
-          {{ tower_template_item.ask_diff_mode
-             | default(tower_templates_defaults.ask_diff_mode)
-             | default(omit) }}
+          {{ tower_template_item.ask_diff_mode | default(omit) }}
         ask_extra_vars: >-
-          {{ tower_template_item.ask_extra_vars
-             | default(tower_templates_defaults.ask_extra_vars)
-             | default(omit) }}
+          {{ tower_template_item.ask_extra_vars | default(omit) }}
         ask_inventory: >-
-          {{ tower_template_item.ask_inventory
-             | default(tower_templates_defaults.ask_inventory)
-             | default(omit) }}
+          {{ tower_template_item.ask_inventory | default(omit) }}
         ask_job_type: >-
-          {{ tower_template_item.ask_job_type
-             | default(tower_templates_defaults.ask_job_type)
-             | default(omit) }}
+          {{ tower_template_item.ask_job_type | default(omit) }}
         ask_limit: >-
-          {{ tower_template_item.ask_limit
-             | default(tower_templates_defaults.ask_limit)
-             | default(omit) }}
+          {{ tower_template_item.ask_limit | default(omit) }}
         ask_skip_tags: >-
-          {{ tower_template_item.ask_skip_tags
-             | default(tower_templates_defaults.ask_skip_tags)
-             | default(omit) }}
+          {{ tower_template_item.ask_skip_tags | default(omit) }}
         ask_tags: >-
-          {{ tower_template_item.ask_tags
-             | default(tower_templates_defaults.ask_tags)
-             | default(omit) }}
+          {{ tower_template_item.ask_tags | default(omit) }}
         ask_verbosity: >-
-          {{ tower_template_item.ask_verbosity
-             | default(tower_templates_defaults.ask_verbosity)
-             | default(omit) }}
+          {{ tower_template_item.ask_verbosity | default(omit) }}
         become_enabled: >-
-          {{ tower_template_item.become_enabled
-             | default(tower_templates_defaults.become_enabled)
-             | default(omit) }}
+          {{ tower_template_item.become_enabled | default(omit) }}
         concurrent_jobs_enabled: >-
-          {{ tower_template_item.concurrent_jobs_enabled
-             | default(tower_templates_defaults.concurrent_jobs_enabled)
-             | default(omit) }}
+          {{ tower_template_item.concurrent_jobs_enabled | default(omit) }}
         description: >-
-          {{ tower_template_item.description
-             | default(tower_templates_defaults.description)
-             | default(omit) }}
+          {{ tower_template_item.description | default(omit) }}
         extra_vars_path: >-
-          {{ tower_template_item.extra_vars_path
-             | default(tower_templates_defaults.extra_vars_path)
-             | default(omit) }}
+          {{ tower_template_item.extra_vars_path | default(omit) }}
         fact_caching_enabled: >-
-          {{ tower_template_item.fact_caching_enabled
-             | default(tower_templates_defaults.fact_caching_enabled)
-             | default(omit) }}
+          {{ tower_template_item.fact_caching_enabled | default(omit) }}
         force_handlers_enabled: >-
-          {{ tower_template_item.force_handlers_enabled
-             | default(tower_templates_defaults.force_handlers_enabled)
-             | default(omit) }}
+          {{ tower_template_item.force_handlers_enabled | default(omit) }}
         forks: >-
-          {{ tower_template_item.forks
-             | default(tower_templates_defaults.forks)
-             | default(omit) }}
+          {{ tower_template_item.forks | default(omit) }}
         host_config_key: >-
-          {{ tower_template_item.host_config_key
-             | default(tower_templates_defaults.host_config_key)
-             | default(omit) }}
+          {{ tower_template_item.host_config_key | default(omit) }}
         inventory: >-
-          {{ tower_template_item.inventory
-             | default(tower_templates_defaults.inventory)
-             | default(omit) }}
+          {{ tower_template_item.inventory | default(omit) }}
         job_tags: >-
-          {{ tower_template_item.job_tags
-             | default(tower_templates_defaults.job_tags)
-             | default(omit) }}
+          {{ tower_template_item.job_tags | default(omit) }}
         job_type: >-
-          {{ tower_template_item.job_type
-             | default(tower_templates_defaults.job_type)
-             | default(omit) }}
+          {{ tower_template_item.job_type | default(omit) }}
         limit: >-
-          {{ tower_template_item.limit
-             | default(tower_templates_defaults.limit)
-             | default(omit) }}
+          {{ tower_template_item.limit | default(omit) }}
         name: >-
-          {{ tower_template_item.name
-             | default(tower_templates_defaults.name)
-             | default(omit) }}
+          {{ tower_template_item.name | default(omit) }}
         playbook: >-
-          {{ tower_template_item.playbook
-             | default(tower_templates_defaults.playbook)
-             | default(omit) }}
+          {{ tower_template_item.playbook | default(omit) }}
         project: >-
-          {{ tower_template_item.project
-             | default(tower_templates_defaults.project)
-             | default(omit) }}
+          {{ tower_template_item.project | default(omit) }}
         skip_tags: >-
-          {{ tower_template_item.skip_tags
-             | default(tower_templates_defaults.skip_tags)
-             | default(omit) }}
+          {{ tower_template_item.skip_tags | default(omit) }}
         start_at_task: >-
-          {{ tower_template_item.start_at_task
-             | default(tower_templates_defaults.start_at_task)
-             | default(omit) }}
+          {{ tower_template_item.start_at_task | default(omit) }}
         state: >-
-          {{ tower_template_item.state
-             | default(tower_templates_defaults.state)
-             | default(omit) }}
+          {{ tower_template_item.state | default(omit) }}
         survey_enabled: >-
-          {{ tower_template_item.survey_enabled
-             | default(tower_templates_defaults.survey_enabled)
-             | default(omit) }}
+          {{ tower_template_item.survey_enabled | default(omit) }}
         tower_config_file: "{{ tower_config_file | default(omit) }}"
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
         validate_certs: "{{ tower_validate_certs }}"
-        verbosity: >-
-          {{ tower_template_item.verbosity
-             | default(tower_templates_defaults.verbosity)
-             | default(omit) }}
+        verbosity: "{{ tower_template_item.verbosity | default(omit) }}"
       register: tower_templates_setup_result
-      loop: "{{ tower_templates_present_state }}"
-      loop_control:
-        loop_var: tower_template_item
-        label: "{{ tower_template_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors }}"
-
-    - name: Ckeck tower templates status
-      uri:
-        url: "{{ tower_host }}/api/v2/job_templates/"
-        headers:
-          Authorization: "Bearer {{ tower_token }}"
-          Content-Type: "application/json"
-        method: GET
-        follow_redirects: all
-        return_content: yes
-        validate_certs: "{{ tower_validate_certs }}"
-        status_code:
-          - 200
-          - 201
-          - 202
-          - 204
-      register: tower_templates_read_result
-      until: >-
-        tower_templates_to_check | map(attribute="name") | list
-        is subset(tower_templates_read_result.json.results
-                  | map(attribute="name") | list)
-      retries: "{{ tower_templates_get_status_retries }}"
-      delay: "{{ tower_templates_get_status_delay }}"
-      no_log: "{{ tower_no_log }}"
-      vars:
-        tower_templates_state_defined: >-
-          {{ tower_templates | selectattr("state", "defined") | list }}
-
-        tower_templates_state_undefined: >-
-          {{ tower_templates | selectattr("state", "undefined") | list }}
-
-        tower_templates_state_default_present: >-
-          {{ (tower_templates_defaults.state is defined
-              and tower_templates_defaults.state == "present")
-              | ternary(tower_templates_state_undefined, []) }}
-
-        tower_templates_state_explict_present: >-
-          {{ tower_templates_state_defined
-             | selectattr("state", "equalto", "present") | list }}
-
-        tower_templates_to_check: >-
-          {{ tower_templates_state_default_present
-             + tower_templates_state_explict_present }}
-
-    - block:
-        - name: Read tower credentials
-          uri:
-            url: "{{ tower_host }}/api/v2/credentials/"
-            headers:
-              Authorization: "Bearer {{ tower_token }}"
-              Content-Type: "application/json"
-            method: GET
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_validate_certs }}"
-            status_code:
-              - 200
-              - 201
-              - 202
-          register: tower_templates_credentials_read_result
-
-        - name: Read tower job templates credentials
-          uri:
-            url: >-
-              {{ tower_host
-                + "/api/v2/job_templates/"
-                + tower_template_id
-                + "/credentials/" }}
-            headers:
-              Authorization: "Bearer {{ tower_token }}"
-              Content-Type: "application/json"
-            method: GET
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_validate_certs }}"
-            status_code:
-              - 200
-              - 201
-              - 202
-          register: tower_templates_template_credentials_read_result
-          loop: "{{ tower_templates_present_state }}"
-          loop_control:
-            loop_var: tower_template_item
-            index_var: tower_template_index
-            label: "{{ tower_template_item.name }}"
-          ignore_errors: "{{ tower_ignore_errors }}"
-
-        - name: Setup tower job template credentials
-          uri:
-            url: >-
-              {{ tower_host
-                + "/api/v2/job_templates/"
-                + tower_template_id
-                + "/credentials/" }}
-            headers:
-              Authorization: "Bearer {{ tower_token }}"
-              Content-Type: "application/json"
-            method: POST
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_validate_certs }}"
-            body: "{{ tower_api_body }}"
-            body_format: json
-            status_code:
-              - 200
-              - 201
-              - 202
-              - 204
-          register: tower_templates_credentials_setup_result
-          changed_when: >-
-            (not tower_credential_exists
-             and tower_credential.state == "present")
-            or (tower_credential_exists
-                and tower_credential.state == "absent")
-          when: >-
-            (tower_credential.state == "present"
-             and not tower_credential_exists)
-            or (tower_credential.state == "absent"
-                and tower_credential_exists)
-          loop: >-
-            {{ tower_templates_with_credentials | subelements("credentials") }}
-          loop_control:
-            loop_var: tower_template_item
-            label: >-
-              {{ tower_template.name }} /
-              {{ tower_credential.name }}
-          ignore_errors: "{{ tower_ignore_errors }}"
-          vars:
-            tower_template: "{{ tower_template_item.0 }}"
-            tower_credential: "{{ tower_template_item.1 }}"
-
-            tower_existing_credentials: >-
-              {{ (tower_templates_template_credentials_read_result.results
-                  | selectattr("tower_template_item.name",
-                               "equalto",
-                               tower_template.name)
-                  | list
-                  | first).json.results }}
-
-            tower_template_found_credentials: >-
-              {{ tower_existing_credentials
-                  | selectattr("name", "equalto", tower_credential.name)
-                  | list }}
-
-            tower_existing_credential: >-
-              {{ (tower_template_found_credentials | length == 1)
-                 | ternary(tower_template_found_credentials | first,
-                           {}) }}
-
-            tower_credential_exists: >-
-              {{ tower_existing_credential.keys() | list | length > 0 }}
-
-            tower_existing_credential_id: >-
-              {{ (tower_templates_credentials_read_result.json.results
-                  | selectattr("name", "equalto", tower_credential.name)
-                  | list
-                  | first).id }}
-
-            tower_api_body_create: >-
-              { "id": {{ tower_existing_credential_id | int }} }
-
-            tower_api_body_remove: >-
-              { "id": {{ tower_existing_credential_id | int }},
-                "disassociate": true }
-
-            tower_api_body: >-
-              {{ (tower_credential.state == "present")
-                 | ternary(
-                     (not tower_credential_exists)
-                     | ternary(tower_api_body_create, {}),
-                     (tower_credential_exists)
-                     | ternary(tower_api_body_remove, {}))
-                 | to_json
-              }}
-
-      when: tower_templates_with_credentials | length > 0
-      vars:
-        tower_templates_with_credentials: >-
-          {{ tower_templates_present_state
-             | selectattr("credentials", "defined")
-             | list
-             + (tower_templates_defaults.credentials is defined)
-               | ternary(tower_templates_present_state
-                         | selectattr("credentials", "undefined")
-                         | map("combine",
-                               { "credentials":
-                                 tower_templates_defaults.credentials
-                                 | default([]) })
-                         | list,
-                         [])
-             }}
-      tags:
-        - role::tower::configure::templates::credentials
-
-    - name: Setup tower job template virtualenvs
-      uri:
-        url: >-
-          {{ tower_host
-            + "/api/v2/job_templates/"
-            + tower_template_id
-            + "/" }}
-        headers:
-          Authorization: "Bearer {{ tower_token }}"
-          Content-Type: "application/json"
-        method: PATCH
-        follow_redirects: all
-        return_content: yes
-        validate_certs: "{{ tower_validate_certs }}"
-        body:
-          custom_virtualenv: "{{ tower_template_current_venv }}"
-        body_format: json
-        status_code:
-          - 200
-          - 201
-          - 202
-      register: tower_templates_venvs_setup_result
-      changed_when: tower_template_previous_venv != tower_template_current_venv
-      loop: "{{ tower_templates_with_virtualenv }}"
-      loop_control:
-        loop_var: tower_template_item
-        index_var: tower_template_index
-        label: "{{ tower_template_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors }}"
-      vars:
-        tower_templates_with_virtualenv: >-
-          {{ tower_templates_present_state
-             | selectattr("virtualenv", "defined")
-             | list
-             + (tower_templates_defaults.virtualenv is defined)
-               | ternary(tower_templates_present_state, [])
-             | unique }}
-        tower_template_previous_venv: >-
-          {{ (tower_template_search_result.0
-              | default({})).custom_virtualenv
-             | default("") }}
-        tower_template_current_venv: >-
-          {{ tower_template_item.virtualenv
-             | default(tower_templates_defaults.virtualenv) }}
-      tags:
-        - role::tower::configure::templates::virtualenvs
-
-    - block:
-        - name: Read tower job template surverys
-          uri:
-            url: >-
-              {{ tower_host
-                + "/api/v2/job_templates/"
-                + tower_template_id
-                + "/survey_spec/" }}
-            headers:
-              Authorization: "Bearer {{ tower_token }}"
-              Content-Type: "application/json"
-            method: GET
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_validate_certs }}"
-            status_code:
-              - 200
-              - 201
-              - 202
-          register: tower_templates_surverys_read_result
-          loop: "{{ tower_templates_with_survey }}"
-          loop_control:
-            loop_var: tower_template_item
-            label: "{{ tower_template_item.name }}"
-          ignore_errors: "{{ tower_ignore_errors }}"
-
-        - name: Setup tower job template surverys
-          uri:
-            url: >-
-              {{ tower_host
-                + "/api/v2/job_templates/"
-                + tower_template_id
-                + "/survey_spec/" }}
-            headers:
-              Authorization: "Bearer {{ tower_token }}"
-              Content-Type: "application/json"
-            method: POST
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_validate_certs }}"
-            body: "{{ tower_template_item_current_survey_spec }}"
-            body_format: json
-            status_code:
-              - 200
-              - 201
-              - 202
-          register: tower_templates_surverys_setup_result
-          changed_when: >-
-            tower_template_item_previous_survey_spec
-            != tower_template_item_current_survey_spec
-          loop: "{{ tower_templates_with_survey }}"
-          loop_control:
-            loop_var: tower_template_item
-            index_var: tower_template_index
-            label: "{{ tower_template_item.name }}"
-          ignore_errors: "{{ tower_ignore_errors }}"
-          vars:
-            tower_template_item_previous_survey_spec: >-
-              {{ tower_templates_surverys_read_result.results
-                 [tower_template_index].json | to_json }}
-            tower_template_item_current_survey_spec: >-
-              {{ tower_template_item.survey_spec
-                 | default(tower_templates_defaults.survey_spec)
-                 | to_json }}
-      when: tower_templates_with_survey | length > 0
-      vars:
-        tower_templates_with_survey: >-
-          {{ tower_templates_present_state
-             | selectattr("survey_spec", "defined")
-             | list
-             + (tower_templates_defaults.survey_spec is defined)
-               | ternary(tower_templates, [])
-             | unique }}
-      tags:
-        - role::tower::configure::templates::surveys
-
-    - block:
-        - name: Read tower job template schedules
-          uri:
-            url: >-
-              {{ tower_host
-                + "/api/v2/job_templates/"
-                + tower_template_id
-                + "/schedules/" }}
-            headers:
-              Authorization: "Bearer {{ tower_token }}"
-              Content-Type: "application/json"
-            method: GET
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_validate_certs }}"
-            status_code:
-              - 200
-              - 201
-              - 202
-              - 204
-          register: tower_templates_schedules_read_result
-          loop: "{{ tower_templates_with_schedules }}"
-          loop_control:
-            loop_var: tower_template_item
-            label: "{{ tower_template_item.name }}"
-          ignore_errors: "{{ tower_ignore_errors }}"
-
-        - name: Setup tower job template schedules
-          uri:
-            url: "{{ tower_host }}/api/v2{{ tower_api_path }}"
-            headers:
-              Authorization: "Bearer {{ tower_token }}"
-              Content-Type: "application/json"
-            method: "{{ tower_api_method }}"
-            follow_redirects: all
-            return_content: yes
-            validate_certs: "{{ tower_validate_certs }}"
-            body: "{{ tower_api_body }}"
-            body_format: json
-            status_code:
-              - 200
-              - 201
-              - 202
-          register: tower_templates_schedules_setup_result
-          changed_when: tower_schedule_changed | bool
-          when: >-
-            tower_schedule.state == "present"
-            or (tower_schedule.state == "absent"
-                and tower_existing_schedule)
-          loop: >-
-            {{ tower_templates_with_schedules | subelements("schedules") }}
-          loop_control:
-            loop_var: tower_template_item
-            label: >-
-              {{ tower_template.name }} /
-              {{ tower_schedule.name }}
-          ignore_errors: "{{ tower_ignore_errors }}"
-          vars:
-            tower_template: "{{ tower_template_item.0 }}"
-            tower_schedule: "{{ tower_template_item.1 }}"
-
-            tower_existing_schedules: >-
-              {{ (tower_templates_schedules_read_result.results
-                  | selectattr("tower_template_item.name",
-                               "equalto",
-                               tower_template.name)
-                  | list
-                  | first).json.results }}
-
-            tower_template_found_schedules: >-
-              {{ tower_existing_schedules
-                  | selectattr("name", "equalto", tower_schedule.name)
-                  | list }}
-
-            tower_existing_schedule: >-
-              {{ (tower_template_found_schedules | length == 1)
-                 | ternary(tower_template_found_schedules | first,
-                           false) }}
-
-            tower_schedule_overrides: >-
-              {{ (tower_existing_schedule)
-                 | ternary({},
-                           { "unified_job_template":
-                             tower_existing_schedule.unified_job_template
-                             | default("") }) }}
-
-            tower_api_path: >-
-              {{ (not tower_existing_schedule)
-                 | ternary("/job_templates/"
-                           + tower_template_id
-                           + "/schedules/",
-                           "/schedules/"
-                           + tower_existing_schedule.id
-                             | default("")
-                             | string
-                           + "/") }}
-
-            tower_api_method: >-
-              {{ (not tower_existing_schedule)
-                 | ternary("POST",
-                           (tower_schedule.state == "absent")
-                           | ternary("DELETE", "PATCH")) }}
-
-            tower_api_body: >-
-              {{ tower_schedule
-                 | combine(tower_schedule_overrides)
-                 | to_json }}
-
-            tower_schedule_changed: >-
-              {{ tower_existing_schedule.rrule | default("")
-                 != tower_schedule.rrule | default("")
-                 or tower_existing_schedule.extra_data | default({})
-                    != tower_schedule.extra_data | default({})
-                 or tower_existing_schedule.enabled | default("")
-                    != tower_schedule.enabled | default("") }}
-      when: tower_templates_with_schedules | length > 0
-      vars:
-        tower_templates_with_schedules: >-
-          {{ tower_templates_present_state
-             | selectattr("schedules", "defined")
-             | list }}
-      tags:
-        - role::tower::configure::templates::schedules
-  vars:
-    tower_templates_present_state: >-
-      {{ tower_templates
-         | selectattr("state", "defined")
-         | selectattr("state", "equalto", "present")
-         | list
-         + (tower_templates_defaults.state | default("") == "present")
-           | ternary(tower_templates
-                     | selectattr("state", "undefined")
-                     | list,
-                     []) }}
-
-    tower_templates_absent_state: >-
-      {{ tower_templates
-         | selectattr("state", "defined")
-         | selectattr("state", "equalto", "absent")
-         | list
-         + (tower_templates_defaults.state | default("") == "absent")
-           | ternary(tower_templates
-                     | selectattr("state", "undefined")
-                     | list,
-                     []) }}
-
-    tower_template_search_result: >-
-      {{ tower_templates_read_result.json.results
-         | selectattr("name",
-                      "equalto",
-                      tower_template_item.name
-                      | default(tower_template.name))
-         | selectattr("summary_fields.project", "defined")
-         | selectattr("summary_fields.project.name",
-                      "equalto",
-                      tower_template_item.project
-                      | default(tower_template.project))
-         | list
-         + tower_templates_read_result.json.results
-           | selectattr("name",
-                        "equalto",
-                        tower_template_item.name
-                        | default(tower_template.name))
-           | selectattr("summary_fields.project", "undefined")
+      loop: >-
+        {{ tower_templates_to_manage
+           | selectattr("state", "equalto", "present")
            | list }}
-    tower_template_id: >-
-      {{ (tower_template_search_result.0 | default({})).id
-         | default("") }}
+      loop_control:
+        loop_var: tower_template_item
+        label: "{{ tower_template_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors }}"
+
+    - name: Wait for tower templates become available
+      tower_wait_resources:
+        type: job_template
+        ids: >-
+          {{ tower_templates_setup_result.results
+             | select("changed")
+             | map(attribute="id")
+             | list }}
+      ignore_errors: "{{ tower_ignore_errors }}"
   tags:
     - role::tower
     - role::tower::configure

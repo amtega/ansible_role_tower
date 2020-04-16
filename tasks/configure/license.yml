@@ -1,47 +1,9 @@
 ---
-# Setup licenses tasks
+# Setup license tasks
 
-- block:
-    - name: Get tower license info
-      uri:
-        url: "{{ tower_host }}/api/v2/config/"
-        headers:
-          Authorization: "Bearer {{ tower_token }}"
-          Content-Type: "application/json"
-        method: GET
-        follow_redirects: all
-        return_content: yes
-        validate_certs: "{{ tower_validate_certs }}"
-      register: tower_get_license_result
-
-    - name: Setup tower license
-      uri:
-        url: "{{ tower_host }}/api/v2/config/"
-        headers:
-          Authorization: "Bearer {{ tower_token }}"
-          Content-Type: "application/json"
-        method: POST
-        follow_redirects: all
-        return_content: yes
-        validate_certs: "{{ tower_validate_certs }}"
-        body: >-
-          {{ tower_license | combine({ "eula_accepted": "true" }) | to_json }}
-        body_format: json
-        status_code:
-          - 200
-          - 201
-          - 202
-      register: tower_license_setup_result
-      changed_when: >-
-        tower_get_license_result.json.license_info
-        | combine(tower_license_overrides)
-        != tower_license_setup_result.json
-           | combine(tower_license_overrides)
-      ignore_errors: "{{ tower_ignore_errors }}"
-      vars:
-        tower_license_overrides:
-          grace_period_remaining: 0
-          time_remaining: 0
+- name: Setup tower license
+  tower_setup_license:
+  register: tower_setup_license_result
   when:
     - tower_type == "rh"
     - tower_license is defined

@@ -1,0 +1,20 @@
+---
+# Setup schedules tasks
+
+- name: Setup tower schedules
+  tower_setup_schedule:
+    spec: "{{ tower_schedule_item }}"
+  register: tower_schedules_setup_result
+  loop: "{{ lookup('template', 'resources_schedules.yml.j2') | from_yaml }}"
+  loop_control:
+    loop_var: tower_schedule_item
+    label: >-
+      {{ tower_schedule_item.target_type }} /
+      {{ tower_schedule_item.target_name }} /
+      {{ tower_schedule_item.name }}
+  ignore_errors: "{{ tower_ignore_errors }}"
+  tags:
+    - role::tower
+    - role::tower::configure
+    - role::tower::configure::resources
+    - role::tower::configure::resources::schedules

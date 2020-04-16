@@ -1,0 +1,8 @@
+---
+# Login into tower tasks
+
+- block:
+    - name: Login into the tower api rest
+      tower_login:
+  tags:
+    - always

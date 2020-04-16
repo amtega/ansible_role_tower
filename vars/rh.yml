@@ -1,0 +1,47 @@
+---
+# RH tower vars
+
+# Offical tower repository settings
+
+tower_rh_repo_url: https://releases.ansible.com/ansible-tower/setup-bundle/
+
+# Artifact variables
+
+tower_rh_package_regexp: >-
+  {{ "ansible-tower-setup-bundle-[0-9.-]+\.el"
+     + ansible_facts.distribution_major_version
+     + "\.tar.gz" }}
+
+tower_rh_default_artifact:
+  type: https
+  host: >-
+    {{ tower_rh_repo_url | urlsplit('scheme')
+       + "://"
+       + tower_rh_repo_url | urlsplit('hostname') }}
+  path: "{{ tower_rh_repo_url | urlsplit('path') }}"
+  file: >-
+    {{ "ansible-tower-setup-bundle-"
+       + tower_version_to_install
+       + ".el"
+       + ansible_facts.distribution_major_version | string
+       + ".tar.gz" }}
+  dest: /tmp
+  no_log: no
+
+tower_rh_artifact_overrides:
+  id: tower
+  unarchive: yes
+
+tower_rh_artifact_overriden: >-
+  {{ tower_artifact
+     | default(tower_rh_default_artifact)
+     | combine(tower_rh_artifact_overrides) }}
+
+tower_rh_uninstall_paths:
+  - /usr/lib/rabbitmq
+  - /var/lib/rabbitmq
+  - /var/log/rabbitmq
+  - /var/lib/awx
+  - /opt/awx
+  - /etc/tower
+  - /var/log/tower

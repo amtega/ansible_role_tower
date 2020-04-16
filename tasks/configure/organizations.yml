@@ -1,31 +1,22 @@
 ---
 # Setup organizations tasks
 
-- block:
-    - name: Setup tower organizations
-      tower_organization:
-        description: >-
-          {{ tower_organization_item.description
-             | default(tower_organizations_defaults.description)
-             | default(omit) }}
-        name: >-
-          {{ tower_organization_item.name
-             | default(tower_organizations_defaults.name) }}
-        state: >-
-          {{ tower_organization_item.state
-             | default(tower_organizations_defaults.state)
-             | default("present") }}
-        tower_config_file: "{{ tower_config_file | default(omit) }}"
-        tower_host: "{{ tower_host }}"
-        tower_password: "{{ tower_password }}"
-        tower_username: "{{ tower_username }}"
-        validate_certs: "{{ tower_validate_certs }}"
-      register: tower_organizations_setup_result
-      loop: "{{ tower_organizations }}"
-      loop_control:
-        loop_var: tower_organization_item
-        label: "{{ tower_organization_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors }}"
+- name: Setup tower organizations
+  tower_organization:
+    description: "{{ tower_organization_item.description | default(omit) }}"
+    name: "{{ tower_organization_item.name }}"
+    state: "{{ tower_organization_item.state | default('present') }}"
+    tower_config_file: "{{ tower_config_file | default(omit) }}"
+    tower_host: "{{ tower_host }}"
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    validate_certs: "{{ tower_validate_certs }}"
+  register: tower_organizations_setup_result
+  loop: "{{ tower_organizations_to_manage }}"
+  loop_control:
+    loop_var: tower_organization_item
+    label: "{{ tower_organization_item.name }}"
+  ignore_errors: "{{ tower_ignore_errors }}"
   tags:
     - role::tower
     - role::tower::configure

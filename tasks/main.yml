@@ -1,6 +1,14 @@
 ---
 # Role tasks
 
+- block:
+    - include_vars: vars/common.yml
+    - include_vars: vars/rh.yml
+    - include_vars: vars/awx.yml
+    - include_vars: vars/hostvars.yml
+  tags:
+    - always
+
 - include_tasks: install/main.yml
   when: tower_state == "present"
   tags:
