@@ -1,0 +1,18 @@
+---
+# Common tower vars
+
+# Version to install
+
+tower_version_to_install: "{{ lookup('template', 'version.yml.j2') | trim }}"
+
+# Facts path
+
+tower_facts_file_path: /etc/ansible/facts.d/tower.fact
+
+# Tower settings file path
+
+tower_settings_path: /etc/tower/settings.py
+
+# Repositories directory
+
+tower_awx_repos_dir: /etc/yum.repos.d

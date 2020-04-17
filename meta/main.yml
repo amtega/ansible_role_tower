@@ -51,3 +51,102 @@ dependencies:
     vars:
       selinux_mode: enforcing
       selinux_policy: targeted
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_settings_.*"
+        attributes:
+          - name
+        fact_name: tower_settings_hostvars
+        output_type: list
+    when: tower_settings_load_from_hostvars | bool
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_organizations_.*"
+        exclude_pattern: "^tower_organizations_defaults$"
+        attributes:
+          - name
+        fact_name: tower_organizations_hostvars
+        output_type: list
+    when: tower_organizations_load_from_hostvars | bool
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_teams_.*"
+        exclude_pattern: "^tower_teams_defaults$"
+        attributes:
+          - name
+        fact_name: tower_teams_hostvars
+        output_type: list
+    when: tower_teams_load_from_hostvars | bool
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_users_.*"
+        exclude_pattern: "^tower_users_defaults$"
+        attributes:
+          - name
+        fact_name: tower_users_hostvars
+        output_type: list
+    when: tower_users_load_from_hostvars | bool
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_credentials_.*"
+        exclude_pattern: "^tower_credentials_defaults$"
+        attributes:
+          - name
+        fact_name: tower_credentials_hostvars
+        output_type: list
+    when: tower_credentials_load_from_hostvars | bool
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_projects_.*"
+        exclude_pattern: "^tower_projects_defaults$"
+        attributes:
+          - name
+        fact_name: tower_projects_hostvars
+        output_type: list
+    when: tower_projects_load_from_hostvars | bool
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_inventories_.*"
+        exclude_pattern: >-
+          ^tower_inventories_defaults|tower_inventories_sources_defaults$
+        attributes:
+          - name
+        fact_name: tower_inventories_hostvars
+        output_type: list
+    when: tower_inventories_load_from_hostvars | bool
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_templates_.*"
+        exclude_pattern: "^tower_templates_defaults$"
+        attributes:
+          - name
+        fact_name: tower_templates_hostvars
+        output_type: list
+    when: tower_templates_load_from_hostvars | bool
+
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^tower_workflows_.*"
+        exclude_pattern: "^tower_workflows_defaults$"
+        attributes:
+          - name
+        fact_name: tower_workflows_hostvars
+        output_type: list
+    when: tower_workflows_load_from_hostvars | bool

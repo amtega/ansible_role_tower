@@ -1,0 +1,16 @@
+---
+# Tower resources configuration tasks
+
+- block:
+    - import_tasks: resources_virtualenvs.yml
+    - import_tasks: resources_surveys.yml
+    - import_tasks: resources_credentials.yml
+    - import_tasks: resources_schedules.yml
+    - import_tasks: resources_roles.yml
+  vars:
+    tower_resources_results: >-
+      {{ lookup("template", "resources_results.yml.j2") | from_yaml }}
+  tags:
+    - role::tower
+    - role::tower::configure
+    - role::tower::configure::resources

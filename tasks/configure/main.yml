@@ -1,14 +1,17 @@
 ---
 # Tower configuration tasks
 
-- import_tasks: token.yml
+- import_tasks: login.yml
 - import_tasks: license.yml
 - import_tasks: settings.yml
 - import_tasks: organizations.yml
 - import_tasks: teams.yml
 - import_tasks: users.yml
 - import_tasks: credentials.yml
+- import_tasks: credentials_security.yml
 - import_tasks: projects.yml
 - import_tasks: inventories.yml
+- import_tasks: inventories_sources.yml
 - import_tasks: templates.yml
-- import_tasks: roles.yml
+- import_tasks: workflows.yml
+- import_tasks: resources.yml

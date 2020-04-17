@@ -1,0 +1,69 @@
+---
+# Items to manage from hostvars
+
+tower_settings_to_manage: >-
+  {{ tower_settings
+     + ((tower_settings_load_from_hostvars)
+        | ternary(tower_settings_hostvars | default([]) | flatten, [])) }}
+
+tower_organizations_to_manage: >-
+  {{ (tower_organizations
+      + ((tower_organizations_load_from_hostvars)
+         | ternary(tower_organizations_hostvars | default([]) | flatten, [])))
+     | map("reverse_combine", tower_organizations_defaults)
+     | list }}
+
+tower_teams_to_manage: >-
+  {{ (tower_teams
+      + ((tower_teams_load_from_hostvars)
+         | ternary(tower_teams_hostvars | default([]) | flatten, [])))
+     | map("reverse_combine", tower_teams_defaults)
+     | list }}
+
+tower_users_to_manage: >-
+  {{ (tower_users
+      + ((tower_users_load_from_hostvars)
+         | ternary(tower_users_hostvars | default([]) | flatten, [])))
+     | map("reverse_combine", tower_users_defaults)
+     | list }}
+
+tower_credentials_to_manage: >-
+  {{ (tower_credentials
+      + ((tower_credentials_load_from_hostvars)
+         | ternary(tower_credentials_hostvars | default([]) | flatten, [])))
+     | map("reverse_combine", tower_credentials_defaults)
+     | list         }}
+
+tower_projects_to_manage: >-
+  {{ (tower_projects
+      + ((tower_projects_load_from_hostvars)
+         | ternary(tower_projects_hostvars | default([]) | flatten, [])))
+     | map("reverse_combine", tower_projects_defaults)
+     | list }}
+
+tower_inventories_to_manage: >-
+  {{ (tower_inventories
+      + ((tower_inventories_load_from_hostvars)
+         | ternary(tower_inventories_hostvars | default([]) | flatten, [])))
+     | map("reverse_combine", tower_inventories_defaults)
+     | list }}
+
+tower_templates_to_manage: >-
+  {{ (tower_templates
+      + ((tower_templates_load_from_hostvars)
+         | ternary(tower_templates_hostvars | default([]) | flatten, [])))
+     | map("reverse_combine", tower_templates_defaults)
+     | list }}
+
+tower_workflows_to_manage: >-
+  {{ (tower_workflows
+      + ((tower_workflows_load_from_hostvars)
+         | ternary(tower_workflows_hostvars | default([]) | flatten, [])))
+     | map("reverse_combine", tower_workflows_defaults)
+     | list }}
+
+tower_roles_to_manage: >-
+  {{ tower_roles
+     + ((tower_roles_load_from_hostvars)
+        | ternary(tower_roles_hostvars | default([]) | flatten, []))
+     + lookup("template", "roles.yml.j2") | from_yaml }}

@@ -1,141 +1,28 @@
 ---
 # Setup inventories tasks
 
-- block:
-    - name: Setup tower inventories
-      tower_inventory:
-        description: >-
-          {{ tower_inventory_item.description
-             | default(tower_inventories_defaults.description)
-             | default(omit) }}
-        host_filter: >-
-          {{ tower_inventory_item.host_filter
-             | default(tower_inventories_defaults.host_filter)
-             | default(omit) }}
-        kind: >-
-          {{ tower_inventory_item.kind
-             | default(tower_inventories_defaults.kind)
-             | default(omit) }}
-        name: >-
-          {{ tower_inventory_item.name
-             | default(tower_inventories_defaults.name)
-             | default(omit) }}
-        organization: >-
-          {{ tower_inventory_item.organization
-             | default(tower_inventories_defaults.organization)
-             | default(omit) }}
-        state: >-
-          {{ tower_inventory_item.state
-             | default(tower_inventories_defaults.state)
-             | default(omit) }}
-        tower_config_file: "{{ tower_config_file | default(omit) }}"
-        tower_host: "{{ tower_host }}"
-        tower_password: "{{ tower_password }}"
-        tower_username: "{{ tower_username }}"
-        validate_certs: "{{ tower_validate_certs }}"
-        variables: >-
-          {{ tower_inventory_item.variables
-             | default(tower_inventories_defaults.variables)
-             | default(omit) }}
-      register: tower_inventories_result
-      loop: "{{ tower_inventories }}"
-      loop_control:
-        loop_var: tower_inventory_item
-        label: "{{ tower_inventory_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors }}"
-
-    - name: Setup tower inventories sources
-      tower_inventory_source:
-        credential: >-
-          {{ tower_inventory_item.1.credential
-             | default(tower_inventories_sources_defaults.credential)
-             | default(omit) }}
-        description: >-
-          {{ tower_inventory_item.1.description
-             | default(tower_inventories_sources_defaults.description)
-             | default(omit) }}
-        group_by: >-
-          {{ tower_inventory_item.1.group_by
-             | default(tower_inventories_sources_defaults.group_by)
-             | default(omit) }}
-        instance_filters: >-
-          {{ tower_inventory_item.1.instance_filters
-             | default(tower_inventories_sources_defaults.instance_filters)
-             | default(omit) }}
-        inventory: >-
-          {{ tower_inventory_item.0.name | default(omit) }}
-        name: >-
-          {{ tower_inventory_item.1.name
-             | default(tower_inventories_sources_defaults.name)
-             | default(omit) }}
-        overwrite: >-
-          {{ tower_inventory_item.1.overwrite
-             | default(tower_inventories_sources_defaults.overwrite)
-             | default(omit) }}
-        overwrite_vars: >-
-          {{ tower_inventory_item.1.overwrite_vars
-             | default(tower_inventories_sources_defaults.overwrite_vars)
-             | default(omit) }}
-        source: >-
-          {{ tower_inventory_item.1.source
-             | default(tower_inventories_sources_defaults.source)
-             | default(omit) }}
-        source_path: >-
-          {{ tower_inventory_item.1.source_path
-             | default(tower_inventories_sources_defaults.source_path)
-             | default(omit) }}
-        source_project: >-
-          {{ tower_inventory_item.1.source_project
-             | default(tower_inventories_sources_defaults.source_project)
-             | default(omit) }}
-        source_regions: >-
-          {{ tower_inventory_item.1.source_regions
-             | default(tower_inventories_sources_defaults.source_regions)
-             | default(omit) }}
-        source_script: >-
-          {{ tower_inventory_item.1.source_script
-             | default(tower_inventories_sources_defaults.source_script)
-             | default(omit) }}
-        source_vars: >-
-          {{ tower_inventory_item.1.source_vars
-             | default(tower_inventories_sources_defaults.source_vars)
-             | default(omit) }}
-        state: >-
-          {{ tower_inventory_item.1.state
-             | default(tower_inventories_sources_defaults.state)
-             | default(omit) }}
-        timeout: >-
-          {{ tower_inventory_item.1.timeout
-             | default(tower_inventories_sources_defaults.timeout)
-             | default(omit) }}
-        tower_config_file: "{{ tower_config_file | default(omit) }}"
-        tower_host: "{{ tower_host }}"
-        tower_password: "{{ tower_password }}"
-        tower_username: "{{ tower_username }}"
-        validate_certs: "{{ tower_validate_certs }}"
-        update_cache_timeout: >-
-          {{ tower_inventory_item.1.update_cache_timeout
-             | default(tower_inventories_sources_defaults.update_cache_timeout)
-             | default(omit) }}
-        update_on_launch: >-
-          {{ tower_inventory_item.1.update_on_launch
-             | default(tower_inventories_sources_defaults.update_on_launch)
-             | default(omit) }}
-        update_on_project_update: >-
-          {{ tower_inventory_item.1.update_on_project_update
-             | default(
-                 tower_inventories_sources_defaults.update_on_project_update)
-             | default(omit) }}
-      register: tower_inventories_sources_setup_result
-      loop: >-
-        {{ tower_inventories | subelements('sources', skip_missing=true) }}
-      loop_control:
-        loop_var: tower_inventory_item
-        label: >-
-          {{ tower_inventory_item.0.name }} /
-          {{ tower_inventory_item.1.name }}
-      ignore_errors: "{{ tower_ignore_errors }}"
+- name: Setup tower inventories
+  tower_inventory:
+    description: "{{ tower_inventory_item.description | default(omit) }}"
+    host_filter: "{{ tower_inventory_item.host_filter | default(omit) }}"
+    kind: "{{ tower_inventory_item.kind | default(omit) }}"
+    name: "{{ tower_inventory_item.name | default(omit) }}"
+    organization: "{{ tower_inventory_item.organization | default(omit) }}"
+    state: "{{ tower_inventory_item.state | default(omit) }}"
+    tower_config_file: "{{ tower_config_file | default(omit) }}"
+    tower_host: "{{ tower_host }}"
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    validate_certs: "{{ tower_validate_certs }}"
+    variables: "{{ tower_inventory_item.variables | default(omit) }}"
+  register: tower_inventories_result
+  loop: "{{ tower_inventories_to_manage }}"
+  loop_control:
+    loop_var: tower_inventory_item
+    label: "{{ tower_inventory_item.name }}"
+  ignore_errors: "{{ tower_ignore_errors }}"
   tags:
     - role::tower
     - role::tower::configure
     - role::tower::configure::inventories
+    - role::tower::configure::inventories::sources
