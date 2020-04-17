@@ -3,7 +3,6 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-from ansible.errors import AnsibleError
 from ansible.plugins.action import ActionBase
 from time import sleep
 
@@ -55,19 +54,29 @@ class ActionModule(ActionBase):
                 resource_path = "/{type}s/{id}".format(type=self._args["type"],
                                                        id=id)
                 action = self._action(args=dict(path=resource_path))
-                resource = action.run(task_vars=self._task_vars)["json"]
+                result = action.run(task_vars=self._task_vars)
 
-                status = resource.get("status", "successful")
+                if "json" in result:
+                    resource = result["json"]
+
+                    status = resource.get("status", "successful")
+                else:
+                    status = "failed"
+
                 if status == "successful":
                     ok = True
-                else:
-                    sleep(delay)
+                # else:
+                #     sleep(delay)
+
+                attempts += 1
 
             if attempts == retries:
-                raise AnsibleError(
-                        "Maximum number of attemps exceded for {type} {id}"
-                        .format(type=self._args["type"],
-                                id=id))
+                return dict(
+                        changed=False,
+                        failed=True,
+                        msg="Maximum number of attemps exceded for {type} {id}"
+                            .format(type=self._args["type"], id=id)
+                )
         return dict(changed=False)
 
     def run(self, tmp=None, task_vars=None):

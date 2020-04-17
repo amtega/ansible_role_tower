@@ -30,7 +30,7 @@
         tower_username: "{{ tower_username }}"
         validate_certs: "{{ tower_validate_certs }}"
       register: tower_workflows_setup_result
-      loop: "{{ tower_workflows_present_state }}"
+      loop: "{{ tower_workflows_to_manage }}"
       loop_control:
         loop_var: tower_workflow_item
         label: "{{ tower_workflow_item.name }}"
@@ -38,9 +38,9 @@
 
     - name: Wait for tower workflows become available
       tower_wait_resources:
-        type: workflow_template
+        type: workflow_job_template
         ids: >-
-          {{ tower_projects_setup_result.results
+          {{ tower_workflows_setup_result.results
              | select("changed")
              | map(attribute="id")
              | list }}
