@@ -20,6 +20,8 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         """Run the action plugin"""
 
+        super(ActionModule, self).run(tmp, task_vars)
+
         # If token fact is already defined use it
 
         if "ansible_facts" in task_vars \

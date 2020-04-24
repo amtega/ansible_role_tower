@@ -1,0 +1,10 @@
+{% set ns = namespace(found=false) %}
+{% for result in tower_workflows_setup_result.results %}
+{% set ns.found = true %}
+{% set workflow = result[result.ansible_loop_var] %}
+- {{ workflow | combine({"id": result.id}) | to_json }}
+{% endfor %}
+
+{% if not ns.found %}
+[]
+{% endif %}

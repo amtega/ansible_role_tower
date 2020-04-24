@@ -22,7 +22,7 @@
   loop_control:
     loop_var: tower_user_item
     label: "{{ tower_user_item.username }}"
-  ignore_errors: "{{ tower_ignore_errors }}"
+  ignore_errors: "{{ tower_ignore_errors | bool }}"
   no_log: "{{ tower_no_log }}"
   tags:
     - role::tower

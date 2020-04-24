@@ -16,7 +16,7 @@
   loop_control:
     loop_var: tower_team_item
     label: "{{ tower_team_item.name }}"
-  ignore_errors: "{{ tower_ignore_errors }}"
+  ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

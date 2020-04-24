@@ -45,9 +45,7 @@ class ActionModule(ActionBase):
             raise AnsibleError(
                 "Role spec must have defined user or team attribute")
 
-        # Gather target object organization and role path. To get the
-        # organization id, first try to get it directly from the object itself.
-        # If not found get it from the inventory in the summary fields
+        # Gather target object organization and role path
 
         target_path = \
             "/{target_type}s/{target_id}/".format(
@@ -55,10 +53,16 @@ class ActionModule(ActionBase):
                 target_id=self._spec["target_id"])
         action = self._action(args=dict(path=target_path))
         target = action.run(task_vars=self._task_vars)["json"]
-        target_organization = target.get("organization",
-                                         target["summary_fields"]
-                                               ["inventory"]
-                                               ["organization_id"])
+
+        if "organization" in target:
+            target_organization = target["organization"]
+        elif "summary_fields" in target:
+            summary_fields = target["summary_fields"]
+            if "organization" in summary_fields:
+                target_organization = summary_fields["organization"]["id"]
+            elif "inventory" in summary_fields:
+                target_organization = \
+                    summary_fields["inventory"]["organization_id"]
 
         target_roles = target["summary_fields"]["object_roles"]
         target_role_key = self._spec["role"].lower() + "_role"
@@ -129,5 +133,6 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         """Run the action module"""
 
+        super(ActionModule, self).run(tmp, task_vars)
         self._task_vars = task_vars
         return self._setup()
