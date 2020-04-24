@@ -12,11 +12,14 @@
     tower_username: "{{ tower_username }}"
     validate_certs: "{{ tower_validate_certs }}"
   register: tower_organizations_setup_result
-  loop: "{{ tower_organizations_to_manage }}"
+  loop: >-
+    {{ tower_organizations_to_manage
+       | selectattr("state", "equalto", tower_organizations_with_state)
+       | list }}
   loop_control:
     loop_var: tower_organization_item
     label: "{{ tower_organization_item.name }}"
-  ignore_errors: "{{ tower_ignore_errors }}"
+  ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

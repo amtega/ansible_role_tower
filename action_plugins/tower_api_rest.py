@@ -116,7 +116,10 @@ class ActionModule(ActionBase):
 
                 # Retrieve next page url
 
-                next = result_json.get("next", False)
+                if not isinstance(result_json, list):
+                    next = result_json.get("next", False)
+                else:
+                    next = False
 
             return dict(json=json,
                         status=result["status"],
@@ -127,6 +130,7 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         """Run the action module"""
 
+        super(ActionModule, self).run(tmp, task_vars)
         self._tmp = tmp
         self._task_vars = task_vars
         return self._call()

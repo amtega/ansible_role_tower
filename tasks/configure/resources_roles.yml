@@ -14,7 +14,7 @@
       {{ tower_role_item.role }} /
       {{ tower_role_item.team | default(tower_role_item.user) }} /
       {{ tower_role_item.state }}
-  ignore_errors: "{{ tower_ignore_errors }}"
+  ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

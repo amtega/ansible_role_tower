@@ -65,5 +65,6 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         """Run the action module"""
 
+        super(ActionModule, self).run(tmp, task_vars)
         self._task_vars = task_vars
         return self._setup()

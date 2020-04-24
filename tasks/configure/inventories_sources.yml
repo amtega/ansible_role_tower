@@ -85,13 +85,14 @@
          | default(omit) }}
   register: tower_inventories_sources_setup_result
   loop: >-
-    {{ tower_inventories | subelements('sources', skip_missing=true) }}
+    {{ tower_inventories_to_manage
+       | subelements('sources', skip_missing=true) }}
   loop_control:
     loop_var: tower_inventory_item
     label: >-
       {{ tower_inventory_item.0.name }} /
       {{ tower_inventory_item.1.name }}
-  ignore_errors: "{{ tower_ignore_errors }}"
+  ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

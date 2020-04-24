@@ -34,7 +34,7 @@
       loop_control:
         loop_var: tower_workflow_item
         label: "{{ tower_workflow_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
 
     - name: Wait for tower workflows become available
       tower_wait_resources:
@@ -44,7 +44,7 @@
              | select("changed")
              | map(attribute="id")
              | list }}
-      ignore_errors: "{{ tower_ignore_errors }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

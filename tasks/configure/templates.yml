@@ -17,7 +17,7 @@
       loop_control:
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
 
     - name: Setup tower job templates
       tower_job_template:
@@ -91,7 +91,7 @@
       loop_control:
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
 
     - name: Wait for tower templates become available
       tower_wait_resources:
@@ -101,7 +101,8 @@
              | select("changed")
              | map(attribute="id")
              | list }}
-      ignore_errors: "{{ tower_ignore_errors }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
+
   tags:
     - role::tower
     - role::tower::configure

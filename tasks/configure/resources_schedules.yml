@@ -12,7 +12,7 @@
       {{ tower_schedule_item.target_type }} /
       {{ tower_schedule_item.target_name }} /
       {{ tower_schedule_item.name }}
-  ignore_errors: "{{ tower_ignore_errors }}"
+  ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

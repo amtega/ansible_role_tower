@@ -42,7 +42,7 @@
       loop_control:
         loop_var: tower_project_item
         label: "{{ tower_project_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
 
     - name: Wait for tower projects become available
       tower_wait_resources:
@@ -53,7 +53,7 @@
              | selectattr("id", "defined")
              | map(attribute="id")
              | list }}
-      ignore_errors: "{{ tower_ignore_errors }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

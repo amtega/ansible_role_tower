@@ -1,0 +1,18 @@
+---
+# Setup workflows tasks
+
+- block:
+    - name: Setup tower workflows templates nodes
+      tower_setup_workflow_nodes:
+        spec: "{{ tower_workflow_item }}"
+      register: tower_workflows_nodes_setup_result
+      loop: "{{ lookup('template', 'workflows_managed.yml.j2') | from_yaml }}"
+      loop_control:
+        loop_var: tower_workflow_item
+        label: "{{ tower_workflow_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
+  tags:
+    - role::tower
+    - role::tower::configure
+    - role::tower::configure::workflows
+    - role::tower::configure::workflows::nodes
