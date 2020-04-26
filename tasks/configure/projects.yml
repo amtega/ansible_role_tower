@@ -50,7 +50,7 @@
         ids: >-
           {{ tower_projects_setup_result.results
              | select("changed")
-             | selectattr("id", "defined")
+             | selectattr("tower_project_item.state", "equalto", "present")
              | map(attribute="id")
              | list }}
       ignore_errors: "{{ tower_ignore_errors | bool }}"
