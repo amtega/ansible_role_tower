@@ -18,4 +18,4 @@
                  | list %}
 {% endif %}
 
-{{ results | to_json }}
+{{ results | selectattr("id", "defined") | list | to_json }}

@@ -1,5 +1,6 @@
 {% set ns = namespace(found=false) %}
-{% for result in tower_workflows_setup_result.results %}
+{% for result in tower_workflows_setup_result.results
+                 | selectattr("tower_workflow_item.state", "equalto", "present") %}
 {% set ns.found = true %}
 {% set workflow = result[result.ansible_loop_var] %}
 - {{ workflow | combine({"id": result.id}) | to_json }}
