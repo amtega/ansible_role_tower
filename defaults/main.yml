@@ -54,13 +54,32 @@ tower_pg_database: tower
 tower_pg_username: tower
 tower_pg_password: tower
 
-# Rabbitmq settings  (only for rh tower)
+# Postgresql software collection package (only for awx)
+
+tower_pg_scl_package: rh-postgresql10
+
+# Rabbitmq settings (only for rh tower)
 
 tower_rabbitmq_port: 5672
 tower_rabbitmq_vhost: tower
 tower_rabbitmq_username: tower
 tower_rabbitmq_password: tower
 tower_rabbitmq_cookie: cookiemonster
+
+# Rabbitmq repository settings (only for awx)
+
+tower_rabbitmq_repo_url: >-
+  https://dl.bintray.com/rabbitmq/rpm/rabbitmq-server/v3.7.x/el/7/
+tower_rabbitmq_erlang_repo_url: >-
+   https://dl.bintray.com/rabbitmq-erlang/rpm/erlang/21/el/7/
+
+# Python software collection (only for awx)
+
+tower_python_scl_package: rh-python36
+
+# Git software collection (only for awx)
+
+tower_git_scl_package: rh-git218
 
 # Force install even if the role detects that it is not necessary
 
@@ -71,9 +90,53 @@ tower_force_install: no
 
 tower_install_args: []
 
+# List of operating system packages to install (only for awx)
+
+tower_install_os_packages:
+  - "@Development Tools"
+  - memcached
+  - nginx
+  - python-devel
+  - rabbitmq-server
+  - redis
+  - "{{ tower_git_scl_package }}"
+  - "{{ tower_pg_scl_package }}-postgresql-server"
+  - "{{ tower_python_scl_package }}-django-split-settings"
+  - "{{ tower_python_scl_package }}-sqlparse"
+  - "{{ tower_python_scl_package }}-ansible"
+  - "{{ tower_python_scl_package }}-asgiref"
+  - "{{ tower_python_scl_package }}"
+  - scl-utils
+
+# List of python packages to install (only for awx)
+
+tower_install_python_packages:
+  - Django==2.2.8
+  - channels==1.1.8
+  - asgiref==1.1.2
+  - django-split-settings
+  - prometheus_client
+  - django-qsstats-magic
+  - ansiconv
+  - python3-memcached
+  - schedule
+  - attrs==19.2.0
+  - asgi_amqp
+  - uwsgi
+  - radius
+  - django-radius
+  - tacacs_plus
+  - onelogin
+  - python3-saml
+  - automat==20.2.0
+
 # Ignore errors during tower assets configuration
 
 tower_ignore_errors: no
+
+# Become method to change to awx users
+
+tower_become_method: su
 
 # List of dicts with the settings to setup. Each dict can contain the following
 # attributes with the same meaning that in ansible `tower_settings` module:

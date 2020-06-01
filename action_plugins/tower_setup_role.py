@@ -94,7 +94,14 @@ class ActionModule(ActionBase):
                and object["name"] == associated_object_name:
                 associated_object_id = object["id"]
 
-        self._associated_object_id = associated_object_id
+        if associated_object_id is not None:
+            self._associated_object_id = associated_object_id
+        else:
+            raise AnsibleError(
+                "Cannot find {associated_object_type} "
+                "with name {associated_object_name}"
+                .format(associated_object_type=associated_object_type,
+                        associated_object_name=associated_object_name))
 
     def _setup(self):
         """Setup the role"""

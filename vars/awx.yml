@@ -1,39 +1,19 @@
 ---
 # AWX tower vars
 
-# AWX repository file
+# Repository file names
 
 tower_awx_repo_file: ansible-awx.repo
-
-# AWX rabbitmq repository settings
-
-tower_awx_rabbitmq_server_repo_url: >-
-  https://dl.bintray.com/rabbitmq/rpm/rabbitmq-server/v3.7.x/el/7/
-tower_awx_rabbitmq_erlang_repo_url: >-
-   https://dl.bintray.com/rabbitmq-erlang/rpm/erlang/21/el/7/
-
 tower_awx_rabbitmq_server_repo_file: rabbitmq.repo
 tower_awx_rabbitmq_erlang_repo_file: rabbitmq-erlang.repo
 
-# AWX required packages
+# AWX scl args
 
-tower_awx_required_packages:
-  - rabbitmq-server
-  - rh-git29
-  - rh-postgresql10
-  - memcached
-  - nginx
-  - nginx-filesystem
-  - rh-python36
-
-# AWX python settings
-
-tower_awx_python_packages_pattern: >-
-  rh-python36* rh-git29* rh-postgresql10* centos-release-scl httpd24-runtime
-  scl-utils
-tower_awx_python_enable_repo_option: >-
-  copr:copr.fedorainfracloud.org:mrmeee:ansible-awx, base
-tower_awx_python_excludes: "*-debuginfo"
+tower_awx_scl_args: >-
+  enable
+  {{ tower_python_scl_package }}
+  {{ tower_pg_scl_package }}
+  {{ tower_git_scl_package }}
 
 # Erlang package
 
@@ -50,7 +30,8 @@ tower_awx_nginx_config_file:  nginx.conf
 
 # PostgreSQL data dir
 
-tower_awx_postgresql10_data_dir: /var/opt/rh/rh-postgresql10/lib/pgsql/data
+tower_awx_postgresql10_data_dir: >-
+  /var/opt/rh/{{ tower_pg_scl_package }}/lib/pgsql/data
 
 # Stuff to clean when uninstalling awx
 

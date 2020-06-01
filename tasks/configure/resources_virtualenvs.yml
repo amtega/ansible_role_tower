@@ -1,7 +1,7 @@
 ---
 # Setup virtualenvs tasks
 
-- name: Setup tower virutalenvs
+- name: Setup tower virtualenvs
   tower_setup_virtualenv:
     spec: "{{ tower_virtualenv_item }}"
   register: tower_virtualenvs_setup_result

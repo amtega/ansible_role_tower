@@ -33,29 +33,35 @@ class ActionModule(ActionBase):
 
         args = self._task.args
 
-        # Gather template id
+        try:
+            # Gather template id
 
-        template_base_path = "/job_templates/"
-        action = self._action(
-                    args=dict(path=template_base_path,
-                              search=args["name"]))
-        search_result = action.run(task_vars=self._task_vars)["json"]
+            template_base_path = "/job_templates/"
+            action = self._action(
+                        args=dict(path=template_base_path,
+                                  search=args["name"]))
+            search_result = action.run(task_vars=self._task_vars)["json"]
 
-        template_id = None
-        for template in search_result:
-            if template["name"] == args["name"]:
-                project = template["summary_fields"].get("project", None)
+            template_id = None
+            for template in search_result:
+                if template["name"] == args["name"]:
+                    project = template["summary_fields"].get("project", None)
 
-                if project is None or project["name"] == args["project"]:
-                    template_id = template["id"]
-                    break
+                    if project is None or project["name"] == args["project"]:
+                        template_id = template["id"]
+                        break
 
-        if template_id is not None:
-            self._template_path = "{template_base_path}{id}/" \
-                                 .format(template_base_path=template_base_path,
-                                         id=template_id)
-        else:
-            self._template_path = None
+            if template_id is not None:
+                self._template_path = \
+                    "{template_base_path}{id}/" \
+                    .format(template_base_path=template_base_path,
+                            id=template_id)
+            else:
+                self._template_path = None
+        except Exception:
+            raise AnsibleError(
+                "Cannot gather info to remove template with name {name}"
+                .format(name=project["name"]))
 
     def _remove(self):
         """Remove the template"""
