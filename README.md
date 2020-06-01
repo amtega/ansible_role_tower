@@ -44,3 +44,4 @@ This role is distributed in the hope that it will be useful, but WITHOUT ANY WAR
 - Juan Antonio Valiño García.
 - Jose Enrique Mourón Regueira
 - Based on Martin Juhl work published on https://awx.wiki
+- https://github.com/MrMEEE/awx-build/issues/225

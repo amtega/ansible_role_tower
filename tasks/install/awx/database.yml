@@ -8,7 +8,7 @@
 
 - name: Initialize postgresql10 server
   command: >-
-    scl enable rh-postgresql10
+    scl {{ tower_awx_scl_args }}
     "postgresql-setup --initdb --unit rh-postgresql10-postgresql"
   when: not tower_check_postgresql10_data_result.stat.exists
 
@@ -19,23 +19,26 @@
     enabled: yes
 
 - name: Check AWX tower database user
-  command: >-
-    scl enable rh-postgresql10 "su postgres
+  shell: >-
+    scl {{ tower_awx_scl_args }} "su postgres
     -c \"psql -c 'select usename from pg_user'\""
     | grep " *awx *"
   args:
     chdir: /tmp
+    warn: no
   failed_when: no
   changed_when: no
   register: tower_check_postgresql10_user_result
 
 - name: Create AWX tower database user
-  command: scl enable rh-postgresql10 "su postgres -c \"createuser -S awx\""
+  command: >-
+    scl {{ tower_awx_scl_args }}
+    "su postgres -c \"createuser -S awx\""
   when: tower_check_postgresql10_user_result.stdout_lines | length == 0
 
 - name: Check AWX tower database
   shell: >-
-    set -o pipefail && scl enable rh-postgresql10 "su postgres
+    set -o pipefail && scl {{ tower_awx_scl_args }} "su postgres
     -c \"psql -c 'select datname from pg_database'\""
     | grep " *awx *"
   args:
@@ -45,5 +48,6 @@
   register: tower_check_postgresql10_database_result
 
 - name: Create AWX tower database
-  command: scl enable rh-postgresql10 "su postgres -c \"createdb -O awx awx\""
+  command: >-
+    scl {{ tower_awx_scl_args }} "su postgres -c \"createdb -O awx awx\""
   when: tower_check_postgresql10_database_result.stdout_lines | length == 0

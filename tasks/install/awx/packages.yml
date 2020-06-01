@@ -1,33 +1,14 @@
 ---
 # Packages install tasks
 
-- name: Install AWX tower required packages
+- name: Install AWX tower operating system required packages
   package:
     name: "{{ tower_awx_package_item }}"
     state: present
   notify: tower restart
-  loop: "{{ tower_awx_required_packages }}"
+  loop: "{{ tower_install_os_packages }}"
   loop_control:
     loop_var: tower_awx_package_item
-
-- name: Install AWX tower python packages
-  shell: >-
-    yum -y install --disablerepo='*' \
-    --enablerepo='{{ tower_awx_python_enable_repo_option }}' \
-    -x {{ tower_awx_python_excludes }} \
-    {{ tower_awx_python_packages_pattern }}
-  args:
-      warn: no
-  register: tower_awx_install_python_result
-  changed_when: >-
-    tower_awx_install_python_result.stdout is search("Complete!")
-  failed_when: >-
-    not tower_awx_install_python_result.stdout is search("Complete!")
-    and not tower_awx_install_python_result.stdout
-            is search("Nothing to do")
-  notify: tower restart
-  environment:
-    LANGUAGE: en_US
 
 - name: Install AWX tower package
   yum:
@@ -35,3 +16,19 @@
     allow_downgrade: yes
     state: present
   notify: tower restart
+
+- name: Install AWX tower python required packages
+  command: >-
+    /opt/rh/{{ tower_python_scl_package }}/root/usr/bin/pip install
+    {{ tower_awx_package_item }}
+  notify: tower restart
+  register: tower_python_package_install_result
+  changed_when: >-
+    tower_python_package_install_result.stdout
+    is search("Successfully installed")
+  loop: "{{ tower_install_python_packages }}"
+  loop_control:
+    loop_var: tower_awx_package_item
+  environment:
+    LANG: en_US
+    LANGUAGE: en_US

@@ -8,19 +8,35 @@
     enabled: yes
 
 - block:
-    - name: Import AWX tower database
+    - name: Create AWX tower migrations
       command: >-
-        scl enable rh-python36 rh-postgresql10 rh-git29
-        "GIT_PYTHON_REFRESH=quiet awx-manage migrate"
-      register: tower_awx_import_db_result
+        scl {{ tower_awx_scl_args }}
+        "GIT_PYTHON_REFRESH=quiet awx-manage makemigrations"
+      register: tower_awx_makemigration_result
       changed_when: >-
-        not tower_awx_import_db_result.stdout
+        not tower_awx_makemigration_result.stdout
+        is search("No changes detected")
+      become: yes
+      become_user: awx
+      become_method: "{{ tower_become_method }}"
+      notify: tower restart
+
+    - name: Migrate AWX tower
+      command: >-
+        scl {{ tower_awx_scl_args }}
+        "GIT_PYTHON_REFRESH=quiet awx-manage migrate"
+      register: tower_awx_migrate_result
+      changed_when: >-
+        not tower_awx_migrate_result.stdout
         is search("No migrations to apply")
+      become: yes
+      become_user: awx
+      become_method: "{{ tower_become_method }}"
       notify: tower restart
 
     - name: Create AWX tower admin user
       shell: >-
-        echo "{{ script }}" | scl enable rh-python36 rh-postgresql10
+        echo "{{ script }}" | scl {{ tower_awx_scl_args }}
         "GIT_PYTHON_REFRESH=quiet awx-manage shell"
       register: tower_awx_create_admin_result
       failed_when:
@@ -35,20 +51,36 @@
           '{{ tower_admin_password }}')
       notify: tower restart
 
+    - name: Create AWX tower preload data
+      shell: >-
+        scl {{ tower_awx_scl_args }}
+        "GIT_PYTHON_REFRESH=quiet awx-manage create_preload_data"
+      register: tower_awx_create_preload_data_result
+      changed_when: >-
+        not tower_awx_create_preload_data_result.stdout
+            is search("changed: False")
+      become: yes
+      become_user: awx
+      become_method: "{{ tower_become_method }}"
+      notify: tower restart
+
     - name: Create AWX tower instance
       shell: >-
-        scl enable rh-python36 rh-postgresql10 rh-git29
+        scl {{ tower_awx_scl_args }}
         "GIT_PYTHON_REFRESH=quiet awx-manage provision_instance
         --hostname=$(hostname)"
       register: tower_awx_create_instance_result
       changed_when: >-
         not tower_awx_create_instance_result.stdout
             is search("Instance already registered")
+      become: yes
+      become_user: awx
+      become_method: "{{ tower_become_method }}"
       notify: tower restart
 
-    - name: Register AWX tower queue in rabbitm
+    - name: Register AWX tower queue in rabbitmq
       shell: >-
-        scl enable rh-python36 rh-postgresql10 rh-git29
+        scl {{ tower_awx_scl_args }}
         "GIT_PYTHON_REFRESH=quiet awx-manage register_queue --queuename=tower
         --hostnames=$(hostname)"
       register: tower_awx_enable_rabbitmq_queue_result
