@@ -101,11 +101,12 @@ tower_install_os_packages:
   - redis
   - "{{ tower_git_scl_package }}"
   - "{{ tower_pg_scl_package }}-postgresql-server"
+  - "{{ tower_python_scl_package }}"
   - "{{ tower_python_scl_package }}-django-split-settings"
   - "{{ tower_python_scl_package }}-sqlparse"
   - "{{ tower_python_scl_package }}-ansible"
   - "{{ tower_python_scl_package }}-asgiref"
-  - "{{ tower_python_scl_package }}"
+  - "{{ tower_python_scl_package }}-boto"
   - scl-utils
 
 # List of python packages to install (only for awx)

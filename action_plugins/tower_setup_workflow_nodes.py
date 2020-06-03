@@ -87,6 +87,17 @@ class ActionModule(ActionBase):
 
         return unified_job_template
 
+    def _get_project_node_unified_job_template(self, node):
+        """Get unified_job_template for a project node."""
+
+        action = self._action(
+                  action="tower_get_resource_id",
+                  args=dict(type="project",
+                            name=node["project_name"],
+                            organization=self._spec["organization"]))
+        print()
+        return action.run(task_vars=self._task_vars)["id"]
+
     def _complete_nodes_with_unified_job_template(self):
         """Complete nodes with unified_job_template."""
 
@@ -98,6 +109,9 @@ class ActionModule(ActionBase):
             elif "inventory_name" in node:
                 node["unified_job_template"] = \
                     self._get_inventory_node_unified_job_template(node)
+            elif "project_name" in node:
+                node["unified_job_template"] = \
+                    self._get_project_node_unified_job_template(node)
 
             nodes_with_unified_job_template.append(node)
 
