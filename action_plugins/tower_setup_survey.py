@@ -55,8 +55,10 @@ class ActionModule(ActionBase):
                                       fields=self._spec["survey_spec"]))
             result = action.run(task_vars=self._task_vars)
 
-            if result["status"] not in [200, 201, 202, 203, 204]:
-                raise AnsibleError("Failed to setup survey")
+            if "status" not in result.keys() \
+               or result["status"] not in [200, 201, 202, 203, 204]:
+                raise AnsibleError("Failed to setup survey: {m}"
+                                   .format(m=result.get("msg", "")))
 
             changed = True
 

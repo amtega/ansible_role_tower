@@ -95,7 +95,7 @@ class ActionModule(ActionBase):
                   args=dict(type="project",
                             name=node["project_name"],
                             organization=self._spec["organization"]))
-        print()
+
         return action.run(task_vars=self._task_vars)["id"]
 
     def _complete_nodes_with_unified_job_template(self):
