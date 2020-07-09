@@ -32,3 +32,8 @@
   environment:
     LANG: en_US
     LANGUAGE: en_US
+
+- name: Ensure uwsgi is executable
+  file:
+    path: "/opt/rh/{{ tower_python_scl_package }}/root/usr/bin/uwsgi"
+    mode: 0755
