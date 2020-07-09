@@ -35,6 +35,9 @@
     - role::tower::configure::settings
     - role::tower::configure::teams
     - role::tower::configure::templates
-    - role::tower::configure::templates::surverys
-    - role::tower::configure::templates::schedules
+    - role::tower::configure::resources::credentials
+    - role::tower::configure::resources::roles
+    - role::tower::configure::resources::schedules
+    - role::tower::configure::resources::surveys
+    - role::tower::configure::resources::virtualenvs
     - role::tower::configure::users

@@ -36,7 +36,7 @@ dependencies:
             centos-release-scl: present
             centos-release-scl-rh: present
             policycoreutils-python: present
-        rhel:
+        redhat:
           all:
             rhel-release-scl: present
             rhel-release-scl-rh: present
