@@ -2,42 +2,45 @@
 # Role tasks
 
 - block:
-    - include_vars: vars/common.yml
-    - include_vars: vars/rh.yml
-    - include_vars: vars/awx.yml
-    - include_vars: vars/hostvars.yml
-  tags:
-    - always
+    - block:
+        - include_vars: vars/common.yml
+        - include_vars: vars/rh.yml
+        - include_vars: vars/awx.yml
+        - include_vars: vars/hostvars.yml
+      tags:
+        - always
 
-- include_tasks: install/main.yml
-  when: tower_state == "present"
-  tags:
-    - role::tower
-    - role::tower::install
+    - include_tasks: install/main.yml
+      when: tower_state == "present"
+      tags:
+        - role::tower
+        - role::tower::install
 
-- include_tasks: uninstall/main.yml
-  when: tower_state == "absent"
-  tags:
-    - role::tower
-    - role::tower::uninstall
+    - include_tasks: uninstall/main.yml
+      when: tower_state == "absent"
+      tags:
+        - role::tower
+        - role::tower::uninstall
 
-- include_tasks: configure/main.yml
-  when: tower_state == "present"
-  tags:
-    - role::tower
-    - role::tower::configure
-    - role::tower::configure::credentials
-    - role::tower::configure::inventories
-    - role::tower::configure::license
-    - role::tower::configure::organizations
-    - role::tower::configure::projects
-    - role::tower::configure::roles
-    - role::tower::configure::settings
-    - role::tower::configure::teams
-    - role::tower::configure::templates
-    - role::tower::configure::resources::credentials
-    - role::tower::configure::resources::roles
-    - role::tower::configure::resources::schedules
-    - role::tower::configure::resources::surveys
-    - role::tower::configure::resources::virtualenvs
-    - role::tower::configure::users
+    - include_tasks: configure/main.yml
+      when: tower_state == "present"
+      tags:
+        - role::tower
+        - role::tower::configure
+        - role::tower::configure::credentials
+        - role::tower::configure::inventories
+        - role::tower::configure::license
+        - role::tower::configure::organizations
+        - role::tower::configure::projects
+        - role::tower::configure::roles
+        - role::tower::configure::settings
+        - role::tower::configure::teams
+        - role::tower::configure::templates
+        - role::tower::configure::resources::credentials
+        - role::tower::configure::resources::roles
+        - role::tower::configure::resources::schedules
+        - role::tower::configure::resources::surveys
+        - role::tower::configure::resources::virtualenvs
+        - role::tower::configure::users
+
+  environment: "{{ proxy_client_environment }}"

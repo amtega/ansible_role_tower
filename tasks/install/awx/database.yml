@@ -38,7 +38,8 @@
 
 - name: Check AWX tower database
   shell: >-
-    set -o pipefail && scl {{ tower_awx_scl_args }} "su postgres
+    set -o pipefail ;
+    scl {{ tower_awx_scl_args }} "su postgres
     -c \"psql -c 'select datname from pg_database'\""
     | grep " *awx *"
   args:
