@@ -22,7 +22,10 @@
 - import_tasks: inventories_sources.yml
 - import_tasks: templates.yml
 - import_tasks: workflows.yml
+
 - import_tasks: workflows_nodes.yml
+  when: tower_workflows_setup_nodes | bool
+
 - import_tasks: resources.yml
 
 - import_tasks: organizations.yml

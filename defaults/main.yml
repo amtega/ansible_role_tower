@@ -472,10 +472,6 @@ tower_templates_get_status_delay: 10
 
 tower_templates_load_from_hostvars: no
 
-# Hide sensitive information
-
-tower_no_log: yes
-
 # List of dicts with the job workflows to setup. Each dict can contain the
 # following attributes with the same meaning that in ansible
 # `tower_workflow_template` module:
@@ -539,6 +535,18 @@ tower_workflows_get_status_delay: 10
 
 tower_workflows_load_from_hostvars: no
 
+# Indicate if workflows nodes muste be configured.
+
+tower_workflows_setup_nodes: yes
+
+# Indicate wich items to setup for tower resources
+
+tower_resources_setup_virtualenvs: yes
+tower_resources_setup_surveys: yes
+tower_resources_setup_credentials: yes
+tower_resources_setup_schedules: yes
+tower_resources_setup_roles: yes
+
 # Artifact download config. This is only used when variable `tower_type` is set
 # to `rh`
 #
@@ -555,3 +563,7 @@ tower_workflows_load_from_hostvars: no
 # so they are not mandatory
 
 # tower_artifact:
+
+# Hide sensitive information
+
+tower_no_log: yes
