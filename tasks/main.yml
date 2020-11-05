@@ -11,7 +11,9 @@
         - always
 
     - include_tasks: install/main.yml
-      when: tower_state == "present"
+      when:
+        - tower_state == "present"
+        - tower_install | bool
       tags:
         - role::tower
         - role::tower::install
@@ -23,7 +25,9 @@
         - role::tower::uninstall
 
     - include_tasks: configure/main.yml
-      when: tower_state == "present"
+      when:
+        - tower_state == "present"
+        - tower_configure | bool
       tags:
         - role::tower
         - role::tower::configure

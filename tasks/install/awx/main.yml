@@ -2,13 +2,103 @@
 # AWX tower install tasks
 
 - block:
-    - include_tasks: selinux.yml
-    - include_tasks: repositories.yml
-    - include_tasks: packages.yml
-    - include_tasks: database.yml
-    - include_tasks: awx.yml
-    - include_tasks: nginx.yml
-    - include_tasks: service.yml
+    - name: Flush handlers to enfoce selinux config
+      meta: flush_handlers
+
+    - name: Clone AWX repository
+      git:
+        repo: "{{ tower_awx_repository }}"
+        dest: "{{ tower_awx_repository_clone_dir }}"
+        version: "{{ tower_awx_repository_version }}"
+        update: "{{ tower_awx_repository_keep_updated }}"
+        force: yes
+        accept_hostkey: yes
+
+    - name: Create AWX required directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+      with_items:
+        - "{{ tower_awx_postgres_data_dir }}"
+
+    - name: Setup AWX install inventory options
+      lineinfile:
+        dest: "{{ tower_awx_repository_clone_dir }}/installer/inventory"
+        regexp: "^{{ tower_awx_option.name }}="
+        line: "{{ tower_awx_option.name }}={{ tower_awx_option.value }}"
+      when: tower_awx_option.value | string | length > 0
+      loop:
+        - name: admin_password
+          value: "{{ tower_admin_password | default('') }}"
+        - name: secret_key
+          value: "{{ tower_secret_key | default('') }}"
+        - name: host_port
+          value: "{{ tower_host_port | default('') }}"
+        - name: host_port_ssl
+          value: "{{ tower_host_port_ssl | default('') }}"
+        - name: pg_hostname
+          value: "{{ tower_pg_hostname | default('') }}"
+        - name: pg_port
+          value: "{{ tower_pg_port | default('') }}"
+        - name: pg_username
+          value: "{{ tower_pg_username | default('') }}"
+        - name: pg_password
+          value: "{{ tower_pg_password | default('') }}"
+        - name: pg_database
+          value: "{{ tower_pg_database | default('') }}"
+        - name: postgres_data_dir
+          value: "{{ tower_awx_postgres_data_dir }}"
+        - name: docker_registry
+          value: "{{ tower_awx_docker_registry | default('') }}"
+        - name: docker_registry_repository
+          value: "{{ tower_awx_docker_registry_repository | default('') }}"
+        - name: docker_registry_username
+          value: "{{ tower_awx_docker_registry_username | default('') }}"
+      loop_control:
+        loop_var: tower_awx_option
+        label: "{{ tower_awx_option.name }}"
+
+    - name: Run AWX install playbook
+      command: >-
+        ansible-playbook -i inventory
+        {{ tower_install_extra_args | join(' ') }}
+        install.yml
+      args:
+        chdir: "{{ tower_awx_repository_clone_dir }}/installer"
+      register: tower_awx_install_result
+      failed_when:
+        - tower_awx_install_result is changed
+        - not tower_awx_install_result.stdout is search("failed=0")
+
+    - name: Give some time to awx to start
+      pause:
+        seconds: "{{ tower_awx_install_pause }}"
+
+    - name: Force AWX migration tasks
+      shell: >-
+        docker ps --format='{{ "{{" }}.ID{{ "}}" }}'
+        | xargs -I {}
+        sh -c 'echo > $(/usr/bin/docker inspect
+        --format="{{ "{{" }}.LogPath{{ "}}" }}" {})' ;
+        /usr/bin/docker exec awx_task awx-manage migrate ;
+        docker container restart awx_task ;
+        docker container restart awx_web
+      args:
+        warn: no
+
+    - name: Cleanup awx clone directory
+      file:
+        path: "{{ tower_awx_repository_clone_dir }}"
+        state: absent
+      when: tower_awx_repository_clone_clean
+
+    - name: Give some time to awx to start
+      pause:
+        seconds: "{{ tower_awx_install_pause }}"
+  environment: "{{ proxy_client_environment }}"
   tags:
     - role::tower
     - role::tower::install
