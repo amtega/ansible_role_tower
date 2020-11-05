@@ -5,7 +5,7 @@
 - import_tasks: license.yml
 - import_tasks: settings.yml
 
-# It's better to remove organizations when the fewer number of items possible
+# It's better to remove organizations with the fewer number of items possible
 # to avoid lock conditions. So, here we only setup the organizations with
 # present state, and delay the removal of the absent state ones to later steps
 

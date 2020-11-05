@@ -11,11 +11,11 @@
     - name: Run RH tower setup
       command: >-
         ./setup.sh
-        -e nginx_http_port={{ tower_nginx_http_port }}
-        -e nginx_https_port={{ tower_nginx_https_port }}
-        {{ (tower_nginx_disable_https)
+        -e nginx_http_port={{ tower_host_port }}
+        -e nginx_https_port={{ tower_host_port_ssl }}
+        {{ (tower_host_port_ssl | string | length == 0)
            | ternary("-e nginx_disable_https=true", "") }}
-        {{ tower_install_args | join(' ') }}
+        {{ tower_install_extra_args | join(' ') }}
       args:
         chdir: "{{ tower_setup_dir }}"
       register: tower_setup_result

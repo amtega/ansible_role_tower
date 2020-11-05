@@ -28,28 +28,39 @@ dependencies:
 
   - role: amtega.epel
 
+  - role: amtega.docker_engine
+    when: tower_install | bool
+    vars:
+      docker_engine_http_proxy: "{{ proxy_client_environment.http_proxy }}"
+      docker_engine_https_proxy: "{{ proxy_client_environment.https_proxy }}"
+      docker_engine_no_proxy: "{{ proxy_client_environment.no_proxy }}"
+
   - role: amtega.packages
     vars:
       packages_os:
-        centos:
+        all:
           all:
-            centos-release-scl: present
-            centos-release-scl-rh: present
-            policycoreutils-python: present
-        redhat:
-          all:
-            rhel-release-scl: present
-            rhel-release-scl-rh: present
-            rhel-server-rhscl-7-rpms: present
-            policycoreutils-python: present
+            - name: ansible
+              state: present
+            - name: docker-compose
+              state: present
+            - name: git
+              state: present
+            - name: libselinux-python3
+              state: present
+            - name: python3
+              state: present
+            - name: python36-docker
+              state: present
       packages_python:
         all:
           all:
-            ansible-tower-cli: present
+            - name: ansible-tower-cli
+              state: present
 
   - role: amtega.selinux
     vars:
-      selinux_mode: enforcing
+      selinux_mode: permissive
       selinux_policy: targeted
 
   - role: amtega.select_hostvars

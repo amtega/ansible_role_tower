@@ -19,125 +19,55 @@ tower_state: present
 
 tower_admin_password: password
 
+# Port numbers
+
+tower_host_port: 8080
+tower_host_port_ssl: 8443
+
+# Postgresql settings
+
+tower_pg_hostname: ""
+tower_pg_port: ""
+tower_pg_database: tower
+tower_pg_username: tower
+tower_pg_password: tower
+
 # Host url to use for config items management
 
-tower_host: "http://localhost:{{ tower_nginx_http_port }}"
+tower_host: "http://localhost:{{ tower_host_port }}"
 
-# Username to use for config items management
+# Username/password to use for config items management
 
 tower_username: admin
-
-# Password to use for config items management
-
 tower_password: "{{ tower_admin_password }}"
+
+# Verify or not SSL certs
+
+tower_validate_certs: no
 
 # Dictionary with the tower license info
 
 #tower_license:
 
-# Verify or not SSL certs from AWX host url
+# Install tower software
 
-tower_validate_certs: no
-
-# NGINX ports
-
-tower_nginx_http_port: 80
-tower_nginx_disable_https: yes
-tower_nginx_https_port: 443
-
-# Postgresql settings (only for rh tower)
-
-tower_pg_host: ""
-tower_pg_port: ""
-
-tower_pg_database: tower
-tower_pg_username: tower
-tower_pg_password: tower
-
-# Postgresql software collection package (only for awx)
-
-tower_pg_scl_package: rh-postgresql10
-
-# Rabbitmq settings (only for rh tower)
-
-tower_rabbitmq_port: 5672
-tower_rabbitmq_vhost: tower
-tower_rabbitmq_username: tower
-tower_rabbitmq_password: tower
-tower_rabbitmq_cookie: cookiemonster
-
-# Rabbitmq repository settings (only for awx)
-
-tower_rabbitmq_repo_url: >-
-  https://dl.bintray.com/rabbitmq/rpm/rabbitmq-server/v3.7.x/el/7/
-tower_rabbitmq_erlang_repo_url: >-
-   https://dl.bintray.com/rabbitmq-erlang/rpm/erlang/21/el/7/
-
-# Python software collection (only for awx)
-
-tower_python_scl_package: rh-python36
-
-# Git software collection (only for awx)
-
-tower_git_scl_package: rh-git218
+tower_install: yes
 
 # Force install even if the role detects that it is not necessary
 
 tower_force_install: no
 
-# List of strings with the install extra arguments. See tower quick install
-# guide for details
+# List of strings with install extra arguments
 
-tower_install_args: []
+tower_install_extra_args: []
 
-# List of operating system packages to install (only for awx)
+# Configure tower assets
 
-tower_install_os_packages:
-  - "@Development Tools"
-  - memcached
-  - nginx
-  - python-devel
-  - rabbitmq-server
-  - redis
-  - "{{ tower_git_scl_package }}"
-  - "{{ tower_pg_scl_package }}-postgresql-server"
-  - "{{ tower_python_scl_package }}"
-  - "{{ tower_python_scl_package }}-django-split-settings"
-  - "{{ tower_python_scl_package }}-sqlparse"
-  - "{{ tower_python_scl_package }}-ansible"
-  - "{{ tower_python_scl_package }}-asgiref"
-  - "{{ tower_python_scl_package }}-boto"
-  - scl-utils
-
-# List of python packages to install (only for awx)
-
-tower_install_python_packages:
-  - Django==2.2.8
-  - channels==1.1.8
-  - asgiref==1.1.2
-  - django-split-settings
-  - prometheus_client
-  - django-qsstats-magic
-  - ansiconv
-  - python3-memcached
-  - schedule
-  - attrs==19.2.0
-  - asgi_amqp
-  - uwsgi
-  - radius
-  - django-radius
-  - tacacs_plus
-  - onelogin
-  - python3-saml
-  - automat==20.2.0
+tower_configure: yes
 
 # Ignore errors during tower assets configuration
 
 tower_ignore_errors: no
-
-# Become method to change to awx users
-
-tower_become_method: su
 
 # List of dicts with the settings to setup. Each dict can contain the following
 # attributes with the same meaning that in ansible `tower_settings` module:
@@ -165,6 +95,13 @@ tower_settings_load_from_hostvars: no
 # - description
 # - name
 # - state
+#
+# Additionally, you can provide a list of dicts indicating the ansible galaxy
+# credentials to setup into the organization:
+#
+# - galaxy_credentials:
+#     - name: <galaxy_credential_name>
+#       state: <present_absent>
 
 tower_organizations: []
 
@@ -311,7 +248,7 @@ tower_projects_defaults: {}
 
 # Number of retries to get a success state after managing a project
 
-tower_projects_get_status_retries: 5
+tower_projects_get_status_retries: 10
 
 # Number of seconds to wait between project state checks
 
@@ -544,6 +481,7 @@ tower_workflows_setup_nodes: yes
 tower_resources_setup_virtualenvs: yes
 tower_resources_setup_surveys: yes
 tower_resources_setup_credentials: yes
+tower_resources_setup_galaxy_credentials: yes
 tower_resources_setup_schedules: yes
 tower_resources_setup_roles: yes
 
@@ -567,3 +505,57 @@ tower_resources_setup_roles: yes
 # Hide sensitive information
 
 tower_no_log: yes
+
+# =============================================================================
+# AWX settings.
+#
+# These settinges are only used when variable `tower_type` is set to `awx`
+# =============================================================================
+
+# AWX cecret key. It's *very* important that this stay the same between upgrades or you will lose the ability to decrypt
+# your credentials
+
+tower_secret_key: awxsecret
+
+# AWX PostgreSQL path.
+#
+# AWX requires access to a PostgreSQL database, and by default, one will be
+# created and deployed in a container, and data will be persisted to a host
+# volume. In this scenario, you must set the value of
+# tower_awx_postgres_data_dir to a path that can be mounted to the container.
+# When the container is stopped, the database files will still exist in the
+# specified path.
+
+tower_awx_postgres_data_dir: /var/lib/postgres-awx
+
+#
+# AWX repository options
+#
+
+tower_awx_repository: https://github.com/ansible/awx.git
+tower_awx_repository_clone_dir: "/srv/awx"
+tower_awx_repository_version: "{{ tower_version }}"
+tower_awx_repository_keep_updated: yes
+tower_awx_repository_clone_clean: no
+
+#
+# AWX docker registry settings
+#
+# If you wish to tag and push built images to docker registry, set the following
+# variables in the inventory file.
+
+# IP address and port, or URL, for accessing a registry.
+
+#tower_awx_docker_registry:
+
+# Namespace to use when pushing and pulling images to and from the registry.
+
+tower_awx_docker_registry_repository: awx
+
+# Username of the user that will push images to the registry.
+
+tower_awx_docker_registry_username: developer
+
+# Seconds to pause during install to give time to awx to start
+
+tower_awx_install_pause: 300

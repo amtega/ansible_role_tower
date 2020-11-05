@@ -1,5 +1,11 @@
 {% set results = [] %}
 
+{% if tower_organizations_setup_result is defined %}
+{% set results = results + tower_organizations_setup_result.results
+                 | map("combine", {"type": "organization"})
+                 | list %}
+{% endif %}
+
 {% if tower_projects_setup_result is defined %}
 {% set results = results + tower_projects_setup_result.results
                  | map("combine", {"type": "project"})

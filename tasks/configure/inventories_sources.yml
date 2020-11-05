@@ -86,6 +86,8 @@
   register: tower_inventories_sources_setup_result
   loop: >-
     {{ tower_inventories_to_manage
+       | selectattr("state", "equalto", "present")
+       | list
        | subelements('sources', skip_missing=true) }}
   loop_control:
     loop_var: tower_inventory_item

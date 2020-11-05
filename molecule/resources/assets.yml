@@ -1,0 +1,78 @@
+---
+
+tower_settings:
+  - name: TOWER_URL_BASE
+    value: "https://www.acme.com"
+
+tower_organizations:
+  - name: test_organization
+    description: Test organization
+
+tower_teams:
+  - name: test_team
+    description: Test team
+
+tower_users:
+  - username: test1
+    password: test1
+    email: test1@acme.com
+  - username: test2
+    password: test2
+    email: test2@acme.com
+
+tower_credentials:
+  - name: test_credential
+    description: Test credential
+    kind: ssh
+    username: test
+    passwword: test
+    state: present
+
+tower_projects:
+  - name: test_project
+    description: Test inventory
+    scm_url: https://github.com/ansible/ansible-examples.git
+    scm_branch: master
+    schedules:
+      - name: test_schedule
+        rrule: >-
+          DTSTART;TZID=Europe/Madrid:20190611T000000
+          RRULE:FREQ=MINUTELY;INTERVAL=30
+        enabled: yes
+        state: present
+
+tower_inventories:
+  - name: "{{ tower_projects.0.name }}"
+    description: "{{ tower_projects.0.description }}"
+    sources:
+      - name: "{{ tower_projects.0.name }}"
+        description: "{{ tower_projects.0.description }}"
+        source_project: "{{ tower_projects.0.name }}"
+
+tower_templates:
+  - name: test_template
+    description: Test template
+    project: test_project
+    playbook: tomcat-standalone/site.yml
+    survey_spec:
+      name: Survery
+      description: Test survery
+      spec:
+        - type: text
+          question_name: Test
+          question_description: Test
+          variable: test
+          default: test
+          required: yes
+    schedules:
+      - name: test_schedule
+        rrule: >-
+          DTSTART;TZID=Europe/Madrid:20190611T000000
+          RRULE:FREQ=MINUTELY;INTERVAL=30
+        enabled: yes
+        state: present
+
+tower_roles:
+  - job_template: test_template
+    role: execute
+    user: admin

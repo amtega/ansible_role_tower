@@ -1,0 +1,10 @@
+---
+
+- name: Converge
+  hosts: molecule_hosts
+  become: yes
+  tasks:
+    - include_vars: ../resources/assets.yml
+
+    - include_role:
+        name: amtega.tower

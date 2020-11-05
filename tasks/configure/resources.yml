@@ -11,6 +11,9 @@
     - import_tasks: resources_credentials.yml
       when: tower_resources_setup_credentials | bool
 
+    - import_tasks: resources_galaxy_credentials.yml
+      when: tower_resources_setup_galaxy_credentials | bool
+
     - import_tasks: resources_schedules.yml
       when: tower_resources_setup_schedules | bool
 

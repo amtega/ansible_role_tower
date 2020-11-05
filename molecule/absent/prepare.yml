@@ -1,0 +1,76 @@
+---
+
+- name: Prepare
+  hosts: molecule_hosts
+  become: yes
+  tasks:
+    - include_vars: ../resources/assets.yml
+
+    - include_role:
+        name: amtega.tower
+      vars:
+        tower_version: 15.0.1
+        tower_type: awx
+        tower_state: present
+        tower_host_port: 8080
+
+        tower_awx_repository: https://github.com/ansible/awx.git
+        tower_awx_repository_clone_dir: "/srv/awx"
+        tower_awx_repository_version: 15.0.1
+        tower_awx_repository_keep_updated: yes
+        tower_awx_repository_clone_clean: no
+
+        tower_organizations_defaults:
+          state: present
+
+        tower_teams_defaults:
+          organization: test_organization
+          state: present
+
+        tower_users_defaults:
+          state: present
+
+        tower_credentials_defaults:
+          organization: test_organization
+          user: admin
+
+        tower_projects_defaults:
+          organization: test_organization
+          scm_type: git
+          scm_branch: master
+          scm_update_on_launch: yes
+          state: present
+
+        tower_inventories_defaults:
+          organization: test_organization
+          state: present
+
+        tower_inventories_sources_defaults:
+          source: scm
+          state: present
+          update_on_project_update: yes
+
+        tower_templates_defaults:
+          ask_credential: no
+          ask_diff_mode: no
+          ask_extra_vars: no
+          ask_inventory: no
+          ask_job_type: no
+          ask_limit: no
+          ask_skip_tags: no
+          ask_tags: no
+          ask_verbosity: no
+          become_enabled: yes
+          concurrent_jobs_enabled: yes
+          credential: test_credential
+          inventory: test_project
+          job_type: run
+          state: present
+          survey_enabled: no
+          credentials:
+            - name: test_credential
+              type: machine
+              state: present
+
+        tower_roles_defaults:
+          state: present
