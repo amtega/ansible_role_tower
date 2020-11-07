@@ -536,7 +536,7 @@ tower_awx_repository: https://github.com/ansible/awx.git
 tower_awx_repository_clone_dir: "/srv/awx"
 tower_awx_repository_version: "{{ tower_version }}"
 tower_awx_repository_keep_updated: yes
-tower_awx_repository_clone_clean: no
+tower_awx_repository_clone_clean: yes
 
 #
 # AWX docker registry settings

@@ -7,7 +7,7 @@
     - block:
         - include_tasks: ../uninstall/main.yml
           when:
-            - need_install
+            - need_install | bool
             - ansible_local.tower is defined
             - tower_state == "present"
 
@@ -19,7 +19,12 @@
         - include_tasks: awx/main.yml
           when:
             - tower_type == "awx"
-            - need_install
+            - need_install | bool
+
+        - include_tasks: awx/cleanup.yml
+          when:
+            - tower_type == "awx"
+            - not need_install | bool
 
         - include_tasks: common/facts.yml
       vars:

@@ -1,0 +1,12 @@
+---
+# Cleanup tasks
+
+- name: Cleanup awx clone directory
+  file:
+    path: "{{ tower_awx_repository_clone_dir }}"
+    state: absent
+  when: tower_awx_repository_clone_clean
+  tags:
+    - role::tower
+    - role::tower::install
+    - role::tower::install::cleanup
