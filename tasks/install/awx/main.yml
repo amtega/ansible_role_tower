@@ -29,6 +29,9 @@
         dest: "{{ tower_awx_repository_clone_dir }}/installer/inventory"
         regexp: "^{{ tower_awx_option.name }}="
         line: "{{ tower_awx_option.name }}={{ tower_awx_option.value }}"
+        owner: root
+        group: root
+        mode: 660
       when: tower_awx_option.value | string | length > 0
       loop:
         - name: admin_password
@@ -73,6 +76,8 @@
         - tower_awx_install_result is changed
         - not tower_awx_install_result.stdout is search("failed=0")
 
+    - include_tasks: cleanup.yml
+
     - name: Give some time to awx to start
       pause:
         seconds: "{{ tower_awx_install_pause }}"
@@ -88,12 +93,6 @@
         docker container restart awx_web
       args:
         warn: no
-
-    - name: Cleanup awx clone directory
-      file:
-        path: "{{ tower_awx_repository_clone_dir }}"
-        state: absent
-      when: tower_awx_repository_clone_clean
 
     - name: Give some time to awx to start
       pause:
