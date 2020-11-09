@@ -1,10 +1,22 @@
 ---
 # AWX Uninstall tasks
 
-- name: Remove AWX containers
+- name: Search AWX containers
   shell: >-
-    set -o pipefail ;
-    docker rm --force `docker ps | grep awx_ | cut -f 1 -d' '`
+     set -o pipefail ;
+     docker ps
+     | grep awx_
+     | cut -f 1 -d' '
   when: yes
+  failed_when: no
   args:
     warn: no
+  register: tower_search_awx_containers_result
+
+- name: Remove AWX containers
+  shell: >-
+    docker rm --force
+    {{ tower_search_awx_containers_result.stdout_lines | join(" ") }}
+  args:
+    warn: no
+  when: tower_search_awx_containers_result.stdout_lines | length > 0
