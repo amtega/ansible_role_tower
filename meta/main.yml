@@ -28,13 +28,6 @@ dependencies:
 
   - role: amtega.epel
 
-  - role: amtega.docker_engine
-    when: tower_install | bool
-    vars:
-      docker_engine_http_proxy: "{{ proxy_client_environment.http_proxy }}"
-      docker_engine_https_proxy: "{{ proxy_client_environment.https_proxy }}"
-      docker_engine_no_proxy: "{{ proxy_client_environment.no_proxy }}"
-
   - role: amtega.packages
     vars:
       packages_os:
@@ -161,3 +154,7 @@ dependencies:
         fact_name: tower_workflows_hostvars
         output_type: list
     when: tower_workflows_load_from_hostvars | bool
+
+  - role: amtega.docker_engine
+    tags:
+      - never

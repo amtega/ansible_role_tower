@@ -556,6 +556,7 @@ tower_awx_docker_registry_repository: awx
 
 tower_awx_docker_registry_username: developer
 
-# Seconds to pause during install to give time to awx to start
+# Retries and seconds to pause during install to give time to awx to start
 
-tower_awx_install_pause: 300
+tower_awx_install_retries: 10
+tower_awx_install_pause: 30
