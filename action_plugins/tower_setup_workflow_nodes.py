@@ -53,7 +53,9 @@ class ActionModule(ActionBase):
 
         inventory_updates_path = "/inventory_updates/"
         action = self._action(args=dict(path=inventory_updates_path,
-                                        search=node["inventory_name"]))
+                                        search=node["inventory_name"],
+                                        order_by="-id",
+                                        page="1"))
         inventory_updates = action.run(task_vars=self._task_vars)["json"]
 
         # If there are not inventory updates launch an update, else gather last

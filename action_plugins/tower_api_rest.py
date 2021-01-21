@@ -47,6 +47,8 @@ class ActionModule(ActionBase):
             method = self._task.args.get("method", "GET")
             fields = self._task.args.get("fields", {})
             search = self._task.args.get("search", "")
+            order_by = self._task.args.get("order_by", "")
+            page = self._task.args.get("page", "")
             absolute = self._task.args.get("absolute", False)
             validate_certs = self._get_task_var("validate_certs", True)
 
@@ -57,7 +59,7 @@ class ActionModule(ActionBase):
 
             # Call the API rest and iterate all the pages returned
 
-            add_args = len(search) > 0
+            add_args = len(search) + len(order_by) + len(page) > 0
             json = []
             next = "{path}".format(path=path)
             while next:
@@ -65,8 +67,24 @@ class ActionModule(ActionBase):
 
                 # Append extra args to url
 
+                join_char = "?"
                 if add_args:
-                    url = url + "?search={search}".format(search=quote(search))
+                    if len(search) > 0:
+                        url += join_char
+                        url += "search={search}".format(search=quote(search))
+                        join_char = "&"
+
+                    if len(order_by) > 0:
+                        url += join_char
+                        url += "order_by={order_by}".format(
+                                                    order_by=quote(order_by))
+                        join_char = "&"
+
+                    if len(page) > 0:
+                        url += join_char
+                        url += "page={page}".format(page=quote(page))
+                        join_char = "&"
+
                     add_args = False
 
                 # Compose URI module args
@@ -116,7 +134,7 @@ class ActionModule(ActionBase):
 
                 # Retrieve next page url
 
-                if not isinstance(result_json, list):
+                if not isinstance(result_json, list) and len(page) == 0:
                     next = result_json.get("next", False)
                 else:
                     next = False
