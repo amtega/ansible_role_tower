@@ -3,7 +3,7 @@
 
 - block:
     - name: Setup tower workflows templates
-      tower_workflow_template:
+      tower_workflow_job_template:
         allow_simultaneous: >-
           {{ tower_workflow_item.allow_simultaneous | default(omit) }}
         ask_extra_vars: >-
