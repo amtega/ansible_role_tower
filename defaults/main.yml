@@ -354,7 +354,7 @@ tower_inventories_load_from_hostvars: no
 #
 # Also, you can provide to the previous template dictionary the attribute
 # `credentials` containing a list of dictionarires with the credentials to apply
-# to the template. The structure of this dict is the following:
+# to the template. The structure of these dicts is the following:
 #
 # {
 #   name: <name>            # Name of the credential
@@ -364,7 +364,7 @@ tower_inventories_load_from_hostvars: no
 #
 # Also, you can provide to the previous template dictionary the attribute
 # `schedules` containing a list of dictionarires with the schedules to apply to
-# the template. The structure of this dict is the following:
+# the template. The structure of these dicts is the following:
 #
 # {
 #   name: <name>            # Name of the schedule
@@ -376,7 +376,7 @@ tower_inventories_load_from_hostvars: no
 #
 # Also, you can provide to the previous template dictionary the attribute
 # `roles` containing a list of dictionarires with the roles to apply to the
-# template. The structure of this dict is the following:
+# template. The structure of these dicts is the following:
 #
 # {
 #   role: <role>            # Role to assign
@@ -414,8 +414,8 @@ tower_templates_load_from_hostvars: no
 # `tower_workflow_template` module:
 #
 # - ask_simultaneous
-# - ask_extra_vars
-# - ask_inventory
+# - ask_variables_on_launch
+# - ask_inventory_on_launch
 # - description
 # - extra_vars_path
 # - inventory
@@ -427,7 +427,7 @@ tower_templates_load_from_hostvars: no
 #
 # Also, you can provide to the previous workflow dictionary the attribute
 # `schedules` containing a list of dictionarires with the schedules to apply to
-# the workflow. The structure of this dict is the following:
+# the workflow. The structure of these dicts is the following:
 #
 # {
 #   name: <name>            # Name of the schedule
@@ -439,13 +439,40 @@ tower_templates_load_from_hostvars: no
 #
 # Also, you can provide to the previous workflow dictionary the attribute
 # `roles` containing a list of dictionarires with the roles to apply to the
-# workflow. The structure of this dict is the following:
+# workflow. The structure of these dicts is the following:
 #
 # {
 #   role: <role>            # Role to assign
 #   team: <team>            # Team to apply the role
 #   state: <state>          # State of the role. Can be present or absent
 #                           # Default is present
+# }
+#
+# Also, you can provide to the previous workflow dictionary the attribute
+# `nodes` containing a list of dictionaries with the nodes to build the
+# workflow. The structure of these dicts is the following (the attributes have
+# the same meaning that tower_workflow_job_template_node ansible module):
+#
+# {
+#   all_parents_must_converge: <value>
+#   always_nodes: <value>
+#   credentials: <value>
+#   diff_mode: <value>
+#   extra_data: <value>
+#   failure_nodes: <value>
+#   identifier: <value>
+#   inventory: <value>
+#   job_tags: <value>
+#   job_type: <value>
+#   limit: <value>
+#   organization: <value>
+#   scm_branch: <value>
+#   skip_tags: <value>
+#   state: <value>
+#   success_nodes: <value>
+#   unified_job_template: <value>
+#   verbosity: <value>
+#   workflow_job_template: <value>
 # }
 
 tower_workflows: []
@@ -472,7 +499,7 @@ tower_workflows_get_status_delay: 10
 
 tower_workflows_load_from_hostvars: no
 
-# Indicate if workflows nodes muste be configured.
+# Indicate if workflows nodes must be configured.
 
 tower_workflows_setup_nodes: yes
 
