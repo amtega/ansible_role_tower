@@ -2,26 +2,26 @@
 # Tower uninstall tasks
 
 - name: Check RH tower service script
-  stat:
+  ansible.builtin.stat:
     path: /usr/bin/ansible-tower-service
   register: tower_check_tower_service_script
 
 - name: Stop RH tower services
-  command: ansible-tower-service stop
+  ansible.builtin.command: ansible-tower-service stop
   when: tower_check_tower_service_script.stat.exists
 
 - name: Remove RH tower packages
-  package:
+  ansible.builtin.package:
     name: "ansible-tower*"
     state: absent
 
 - name: Remove RH rabbitmq packages
-  package:
+  ansible.builtin.package:
     name: "rabbitmq-*"
     state: absent
 
 - name: Clean RH files and directories
-  file:
+  ansible.builtin.file:
     path: "{{ tower_rh_uninstall_paths_item }}"
     state: absent
   loop: "{{ tower_rh_uninstall_paths }}"

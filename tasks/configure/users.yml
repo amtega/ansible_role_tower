@@ -2,7 +2,7 @@
 # Setup users tasks
 
 - name: Setup tower users
-  tower_user:
+  awx.awx.tower_user:
     auditor: "{{ tower_user_item.auditor | default(omit) }}"
     email: "{{ tower_user_item.email }}"
     fist_name: "{{ tower_user_item.fist_name | default(omit) }}"

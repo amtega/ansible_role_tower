@@ -3,9 +3,9 @@
 
 - block:
     - name: Flush handlers to enfoce selinux config
-      meta: flush_handlers
+      ansible.builtin.meta: flush_handlers
 
-    - include_role:
+    - ansible.builtin.include_role:
         name: amtega.docker_engine
       when: tower_install | bool
       vars:
@@ -14,7 +14,7 @@
         docker_engine_no_proxy: "{{ proxy_client_environment.no_proxy }}"
 
     - name: Clone AWX repository
-      git:
+      ansible.builtin.git:
         repo: "{{ tower_awx_repository }}"
         dest: "{{ tower_awx_repository_clone_dir }}"
         version: "{{ tower_awx_repository_version }}"
@@ -23,7 +23,7 @@
         accept_hostkey: yes
 
     - name: Create AWX required directories
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: directory
         owner: root
@@ -33,7 +33,7 @@
         - "{{ tower_awx_postgres_data_dir }}"
 
     - name: Setup AWX install inventory options
-      lineinfile:
+      ansible.builtin.lineinfile:
         dest: "{{ tower_awx_repository_clone_dir }}/installer/inventory"
         regexp: "^{{ tower_awx_option.name }}="
         line: "{{ tower_awx_option.name }}={{ tower_awx_option.value }}"
@@ -73,7 +73,7 @@
         label: "{{ tower_awx_option.name }}"
 
     - name: Run AWX install playbook
-      command: >-
+      ansible.builtin.command: >-
         ansible-playbook -i inventory
         {{ tower_install_extra_args | join(' ') }}
         install.yml
@@ -84,8 +84,8 @@
         - tower_awx_install_result is changed
         - not tower_awx_install_result.stdout is search("failed=0")
 
-    - include_tasks: cleanup.yml
-    - include_tasks: wait.yml
+    - ansible.builtin.include_tasks: cleanup.yml
+    - ansible.builtin.include_tasks: wait.yml
   environment: "{{ proxy_client_environment }}"
   tags:
     - role::tower

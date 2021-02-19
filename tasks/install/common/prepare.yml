@@ -2,4 +2,4 @@
 # Common prepare tasks
 
 - name: Flush handlers to enfoce selinux config
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

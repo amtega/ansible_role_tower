@@ -3,13 +3,13 @@
 
 - block:
     - name: Prepare RH tower setup inventory
-      template:
+      ansible.builtin.template:
         src: inventory.j2
         dest: "{{ tower_setup_dir }}/inventory"
         mode: 0660
 
     - name: Run RH tower setup
-      command: >-
+      ansible.builtin.command: >-
         ./setup.sh
         -e nginx_http_port={{ tower_host_port }}
         -e nginx_https_port={{ tower_host_port_ssl }}

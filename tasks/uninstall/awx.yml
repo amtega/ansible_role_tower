@@ -2,7 +2,7 @@
 # AWX Uninstall tasks
 
 - name: Search AWX containers
-  shell: >-
+  ansible.builtin.shell: >-
      set -o pipefail ;
      docker ps
      | grep awx_
@@ -14,7 +14,7 @@
   register: tower_search_awx_containers_result
 
 - name: Remove AWX containers
-  shell: >-
+  ansible.builtin.shell: >-
     docker rm --force
     {{ tower_search_awx_containers_result.stdout_lines | join(" ") }}
   args:

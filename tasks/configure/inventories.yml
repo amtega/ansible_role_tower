@@ -2,7 +2,7 @@
 # Setup inventories tasks
 
 - name: Setup tower inventories
-  tower_inventory:
+  awx.awx.tower_inventory:
     description: "{{ tower_inventory_item.description | default(omit) }}"
     host_filter: "{{ tower_inventory_item.host_filter | default(omit) }}"
     kind: "{{ tower_inventory_item.kind | default(omit) }}"

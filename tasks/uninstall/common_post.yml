@@ -2,9 +2,9 @@
 # Common post uninstall tasks
 
 - name: Remove tower fact file
-  file:
+  ansible.builtin.file:
     path: "{{ tower_facts_file_path }}"
     state: absent
 
 - name: Reload facts
-  setup:
+  ansible.builtin.setup:
