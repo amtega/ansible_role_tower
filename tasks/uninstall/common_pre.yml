@@ -2,4 +2,4 @@
 # Common pre uninstall tasks
 
 - name: Gather service facts
-  service_facts:
+  ansible.builtin.service_facts:

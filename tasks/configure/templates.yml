@@ -20,7 +20,7 @@
       ignore_errors: "{{ tower_ignore_errors | bool }}"
 
     - name: Setup tower job templates
-      tower_job_template:
+      awx.awx.tower_job_template:
         ask_credential: >-
           {{ tower_template_item.ask_credential | default(omit) }}
         ask_diff_mode: >-

@@ -3,13 +3,13 @@
 
 - block:
     - name: Setup tower workflows templates
-      tower_workflow_template:
+      awx.awx.tower_workflow_job_template:
         allow_simultaneous: >-
           {{ tower_workflow_item.allow_simultaneous | default(omit) }}
-        ask_extra_vars: >-
-          {{ tower_workflow_item.ask_extra_vars | default(omit) }}
-        ask_inventory: >-
-          {{ tower_workflow_item.ask_inventory | default(omit) }}
+        ask_variables_on_launch: >-
+          {{ tower_workflow_item.ask_variables_on_launch | default(omit) }}
+        ask_inventory_on_launch: >-
+          {{ tower_workflow_item.ask_variables_on_launch | default(omit) }}
         description: >-
           {{ tower_workflow_item.description | default(omit) }}
         extra_vars: >-

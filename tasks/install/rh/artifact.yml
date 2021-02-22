@@ -2,7 +2,7 @@
 # RH tower artifact download tasks
 
 - name: Download RH tower artifacts
-  include_role:
+  ansible.builtin.include_role:
     name: amtega.artifact
   vars:
     artifact_list:

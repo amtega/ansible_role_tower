@@ -2,7 +2,7 @@
 # Cleanup tasks
 
 - name: Cleanup awx clone directory
-  file:
+  ansible.builtin.file:
     path: "{{ tower_awx_repository_clone_dir }}"
     state: absent
   when: tower_awx_repository_clone_clean
