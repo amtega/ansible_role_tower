@@ -3,41 +3,41 @@
 
 - block:
     - name: Give some time to awx to start
-      pause:
+      ansible.builtin.pause:
         seconds: "{{ tower_awx_install_pause }}"
 
     - name: Increment the wait attempts count
-      set_fact:
+      ansible.builtin.set_fact:
         tower_wait_retry_count: >-
           {{ tower_wait_retry_count | default(0) | int + 1 }}
 
     - name: Check awx_task container logs
-      command: docker logs awx_task
+      ansible.builtin.command: docker logs awx_task
       changed_when: no
       register: tower_awx_task_logs_result
 
     - name: Check awx_web container logs
-      command: docker logs awx_task
+      ansible.builtin.command: docker logs awx_task
       changed_when: no
       register: tower_awx_web_logs_result
 
     - name: Assert that awx_task container started correctly
-      assert:
+      ansible.builtin.assert:
         that: tower_awx_task_logs_result.stdout is search("OKREADY")
 
     - name: Assert that awx_web container started correctly
-      assert:
+      ansible.builtin.assert:
         that: tower_awx_web_logs_result.stdout is search("OKREADY")
 
-    - include_tasks: configure/login.yml
+    - ansible.builtin.include_tasks: configure/login.yml
 
   rescue:
-    - fail:
+    - ansible.builtin.fail:
         msg: Maximum waiting retries
       when: tower_wait_retry_count | int == tower_awx_install_retries
 
     - name: Force AWX migration tasks
-      shell: >-
+      ansible.builtin.shell: >-
         docker ps --format='{{ "{{" }}.ID{{ "}}" }}'
         | xargs -I {}
         sh -c 'echo > $(/usr/bin/docker inspect
@@ -48,7 +48,7 @@
       args:
         warn: no
 
-    - include_tasks: wait.yml
+    - ansible.builtin.include_tasks: wait.yml
 
   tags:
     - role::tower

@@ -2,7 +2,7 @@
 # Setup inventories sources tasks
 
 - name: Setup tower inventories sources
-  tower_inventory_source:
+  awx.awx.tower_inventory_source:
     credential: >-
       {{ tower_inventory_item.1.credential
          | default(tower_inventories_sources_defaults.credential)

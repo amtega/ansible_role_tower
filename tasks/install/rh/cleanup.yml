@@ -5,10 +5,10 @@
     # We need to reload facts to refresh info from artifact role
 
     - name: Reload facts
-      setup:
+      ansible.builtin.setup:
 
     - name: Remove RH tower unnecessary files after install
-      include_role:
+      ansible.builtin.include_role:
         name: amtega.artifact
       vars:
         artifact_list:

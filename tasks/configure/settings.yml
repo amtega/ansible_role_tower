@@ -2,7 +2,7 @@
 # Setup settings tasks
 
 - name: Setup tower settings
-  tower_settings:
+  awx.awx.tower_settings:
     name: "{{ tower_setting_item.name }}"
     tower_config_file: "{{ tower_config_file | default(omit) }}"
     tower_host: "{{ tower_host }}"

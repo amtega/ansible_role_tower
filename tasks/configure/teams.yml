@@ -2,7 +2,7 @@
 # Setup teams tasks
 
 - name: Setup tower teams
-  tower_team:
+  awx.awx.tower_team:
     name: "{{ tower_team_item.name }}"
     organization: "{{ tower_team_item.organization }}"
     state: "{{ tower_team_item.state | default('present') }}"

@@ -2,7 +2,7 @@
 # Setup organizations tasks
 
 - name: Setup tower organizations
-  tower_organization:
+  awx.awx.tower_organization:
     description: "{{ tower_organization_item.description | default(omit) }}"
     name: "{{ tower_organization_item.name }}"
     state: "{{ tower_organization_item.state | default('present') }}"
