@@ -3,10 +3,14 @@
 
 - block:
     - block:
-        - ansible.builtin.include_vars: vars/common.yml
-        - ansible.builtin.include_vars: vars/rh.yml
-        - ansible.builtin.include_vars: vars/awx.yml
-        - ansible.builtin.include_vars: vars/hostvars.yml
+        - ansible.builtin.include_vars:
+            file: vars/common.yml
+        - ansible.builtin.include_vars:
+            file: vars/rh.yml
+        - ansible.builtin.include_vars:
+            file: vars/awx.yml
+        - ansible.builtin.include_vars:
+            file: vars/hostvars.yml
       tags:
         - always
 

@@ -4,7 +4,8 @@
   hosts: molecule_hosts
   become: yes
   tasks:
-    - include_vars: ../resources/assets.yml
+    - include_ansible.builtin.include_vars:
+        file: ../resources/assets.yml
 
     - include_role:
         name: amtega.tower
