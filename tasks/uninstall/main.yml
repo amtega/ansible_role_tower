@@ -2,19 +2,23 @@
 # Uninstall tasks
 
 - block:
-    - ansible.builtin.include_tasks: common_pre.yml
+    - ansible.builtin.include_tasks:
+        file: common_pre.yml
 
-    - ansible.builtin.include_tasks: rh.yml
+    - ansible.builtin.include_tasks:
+        file: rh.yml
       when: >-
         ansible_local_facts.type | default("") == "rh"
         or (tower_state == "absent" and tower_type == "rh")
 
-    - ansible.builtin.include_tasks: awx.yml
+    - ansible.builtin.include_tasks:
+        file: awx.yml
       when: >-
         ansible_local_facts.type | default("") == "awx"
         or (tower_state == "absent" and tower_type == "awx")
 
-    - ansible.builtin.include_tasks: common_post.yml
+    - ansible.builtin.include_tasks:
+        file: common_post.yml
   vars:
     ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
   tags:
