@@ -29,7 +29,8 @@
       ansible.builtin.assert:
         that: tower_awx_web_logs_result.stdout is search("OKREADY")
 
-    - ansible.builtin.include_tasks: configure/login.yml
+    - ansible.builtin.include_tasks:
+        file: configure/login.yml
 
   rescue:
     - ansible.builtin.fail:
@@ -48,7 +49,8 @@
       args:
         warn: no
 
-    - ansible.builtin.include_tasks: wait.yml
+    - ansible.builtin.include_tasks:
+        file: wait.yml
 
   tags:
     - role::tower

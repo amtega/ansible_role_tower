@@ -84,8 +84,11 @@
         - tower_awx_install_result is changed
         - not tower_awx_install_result.stdout is search("failed=0")
 
-    - ansible.builtin.include_tasks: cleanup.yml
-    - ansible.builtin.include_tasks: wait.yml
+    - ansible.builtin.include_tasks:
+        file: cleanup.yml
+        
+    - ansible.builtin.include_tasks:
+        file: wait.yml
   environment: "{{ proxy_client_environment }}"
   tags:
     - role::tower
