@@ -2,31 +2,37 @@
 # Install tasks
 
 - block:
-    - ansible.builtin.include_tasks: common/prepare.yml
+    - ansible.builtin.include_tasks:
+        file: common/prepare.yml
 
     - block:
-        - ansible.builtin.include_tasks: ../uninstall/main.yml
+        - ansible.builtin.include_tasks:
+            file: ../uninstall/main.yml
           when:
             - need_install | bool
             - ansible_local.tower is defined
             - tower_state == "present"
 
-        - ansible.builtin.include_tasks: rh/main.yml
+        - ansible.builtin.include_tasks:
+            file: rh/main.yml
           when:
             - tower_type == "rh"
             - need_install
 
-        - ansible.builtin.include_tasks: awx/main.yml
+        - ansible.builtin.include_tasks:
+            file: awx/main.yml
           when:
             - tower_type == "awx"
             - need_install | bool
 
-        - ansible.builtin.include_tasks: awx/cleanup.yml
+        - ansible.builtin.include_tasks:
+            file: awx/cleanup.yml
           when:
             - tower_type == "awx"
             - not need_install | bool
 
-        - ansible.builtin.include_tasks: common/facts.yml
+        - ansible.builtin.include_tasks:
+            file: common/facts.yml
       vars:
         ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
         need_install: >-
