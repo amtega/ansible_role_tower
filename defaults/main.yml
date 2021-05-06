@@ -506,7 +506,6 @@ tower_workflows_setup_nodes: yes
 # Indicate wich items to setup for tower resources
 
 tower_resources_setup_virtualenvs: yes
-tower_resources_setup_surveys: yes
 tower_resources_setup_credentials: yes
 tower_resources_setup_galaxy_credentials: yes
 tower_resources_setup_schedules: yes
