@@ -8,4 +8,4 @@
       uri:
         url: "http://localhost:{{ tower_host_port }}"
         return_content: yes
-        validate_certs: false
+        validate_certs: no

@@ -4,7 +4,7 @@
   hosts: molecule_hosts
   become: yes
   tasks:
-    - include_ansible.builtin.include_vars:
+    - ansible.builtin.include_vars:
         file: ../resources/assets.yml
 
     - include_role:
