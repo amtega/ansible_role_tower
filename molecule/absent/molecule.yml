@@ -87,5 +87,7 @@ provisioner:
           tower_roles_defaults:
             state: absent
 
+          tower_no_log: no
+
 verifier:
   name: ansible
