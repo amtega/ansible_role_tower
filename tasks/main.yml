@@ -3,18 +3,23 @@
 
 - block:
     - block:
-        - ansible.builtin.include_vars:
+        - name: Load common varibles
+          ansible.builtin.include_vars:
             file: vars/common.yml
-        - ansible.builtin.include_vars:
+        - name: Load RH tower varibles
+          ansible.builtin.include_vars:
             file: vars/rh.yml
-        - ansible.builtin.include_vars:
+        - name: Load AWX variables
+          ansible.builtin.include_vars:
             file: vars/awx.yml
-        - ansible.builtin.include_vars:
+        - name: Load hostvars variables
+          ansible.builtin.include_vars:
             file: vars/hostvars.yml
       tags:
         - always
 
-    - ansible.builtin.include_tasks:
+    - name: Install tasks
+      ansible.builtin.include_tasks:
         file: install/main.yml
       when:
         - tower_state == "present"
@@ -23,14 +28,16 @@
         - role::tower
         - role::tower::install
 
-    - ansible.builtin.include_tasks:
+    - name: Uninstall tasks
+      ansible.builtin.include_tasks:
         file: uninstall/main.yml
       when: tower_state == "absent"
       tags:
         - role::tower
         - role::tower::uninstall
 
-    - ansible.builtin.include_tasks:
+    - name: Configure tasks
+      ansible.builtin.include_tasks:
         file: configure/main.yml
       when:
         - tower_state == "present"

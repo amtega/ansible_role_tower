@@ -159,8 +159,8 @@ tower_teams_load_from_hostvars: no
 tower_users: []
 
 # Dictionary with the defaults options to use if no other ones are specified in
-# the `tower_users` variable. The members of the dict are the same attributes that
-# the ones expected by the ansible `tower_user` module
+# the `tower_users` variable. The members of the dict are the same attributes
+# that the ones expected by the ansible `tower_user` module
 
 tower_users_defaults: {}
 
@@ -352,6 +352,13 @@ tower_inventories_load_from_hostvars: no
 # - survey_enabled
 # - verbosity
 #
+# Also, you can specify the following settings for project update (with the same
+# meaning that in ansible `tower_project_update` module:
+#
+# - update_interval
+# - update_timeout
+# - update_wait
+#
 # Also, you can provide to the previous template dictionary the attribute
 # `credentials` containing a list of dictionarires with the credentials to apply
 # to the template. The structure of these dicts is the following:
@@ -389,8 +396,9 @@ tower_inventories_load_from_hostvars: no
 tower_templates: []
 
 # Dictionary with the defaults options to use if no other ones are specified in
-# the `tower_templates` variable. The members of the dict are the same attributes
-# that the ones expected by the ansible `tower_inventory_source` module
+# the `tower_templates` variable. The members of the dict are the same
+# attributes that the ones expected by the ansible `tower_inventory_source`
+# module
 
 tower_templates_defaults: {}
 
@@ -506,7 +514,6 @@ tower_workflows_setup_nodes: yes
 # Indicate wich items to setup for tower resources
 
 tower_resources_setup_virtualenvs: yes
-tower_resources_setup_surveys: yes
 tower_resources_setup_credentials: yes
 tower_resources_setup_galaxy_credentials: yes
 tower_resources_setup_schedules: yes
@@ -539,8 +546,8 @@ tower_no_log: yes
 # These settinges are only used when variable `tower_type` is set to `awx`
 # =============================================================================
 
-# AWX cecret key. It's *very* important that this stay the same between upgrades or you will lose the ability to decrypt
-# your credentials
+# AWX cecret key. It's *very* important that this stay the same between upgrades
+# or you will lose the ability to decrypt your credentials
 
 tower_secret_key: awxsecret
 

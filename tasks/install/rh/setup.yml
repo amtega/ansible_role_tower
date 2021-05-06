@@ -23,6 +23,7 @@
         not tower_setup_result.stdout
         is search("The setup process completed successfully")
       environment:
+        # yamllint disable-line rule:truthy
         ANSIBLE_INJECT_FACT_VARS: true
   vars:
     tower_setup_dir: >-

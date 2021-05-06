@@ -2,22 +2,26 @@
 # RH tower install tasks
 
 - block:
-    - ansible.builtin.include_tasks:
+    - name: Setup repository
+      ansible.builtin.include_tasks:
         file: repository.yml
       when:
         - tower_version is not defined
         - tower_artifact is not defined
 
-    - ansible.builtin.include_tasks:
+    - name: Download artifacts
+      ansible.builtin.include_tasks:
         file: artifact.yml
       when: need_install
 
     - block:
-        - ansible.builtin.include_tasks:
+        - name: Setup tasks
+          ansible.builtin.include_tasks:
             file: setup.yml
       when: need_install
 
-    - ansible.builtin.include_tasks:
+    - name: cleanup tasks
+      ansible.builtin.include_tasks:
         file: cleanup.yml
       when: need_install
       tags:
