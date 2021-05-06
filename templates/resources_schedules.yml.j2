@@ -1,5 +1,10 @@
 {% set ns = namespace(found=false) %}
-{% for result in tower_resources_results %}
+{% for result in tower_resources_results
+                 | selectattr("invocation.module_args.state", "defined")
+                 | selectattr("invocation.module_args.state",
+                              "equalto",
+                              "present")
+                 | list %}
 {% set object = result[result.ansible_loop_var] %}
 {% for schedule in object.schedules | default([]) %}
 {% set ns.found = true %}
