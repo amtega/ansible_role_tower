@@ -29,11 +29,13 @@
       ansible.builtin.assert:
         that: tower_awx_web_logs_result.stdout is search("OKREADY")
 
-    - ansible.builtin.include_tasks:
+    - name: Login
+      ansible.builtin.include_tasks:
         file: configure/login.yml
 
   rescue:
-    - ansible.builtin.fail:
+    - name: Check number of retries
+      ansible.builtin.fail:
         msg: Maximum waiting retries
       when: tower_wait_retry_count | int == tower_awx_install_retries
 
@@ -49,7 +51,8 @@
       args:
         warn: no
 
-    - ansible.builtin.include_tasks:
+    - name: Wait for startup
+      ansible.builtin.include_tasks:
         file: wait.yml
 
   tags:

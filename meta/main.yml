@@ -2,6 +2,7 @@
 
 galaxy_info:
   role_name: tower
+  namespace: amtega
   author: Juan Antonio Valiño García
   description: Setup ansible tower/awx
   company: AMTEGA - Xunta de Galicia

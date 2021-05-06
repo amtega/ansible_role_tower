@@ -77,6 +77,8 @@
           {{ tower_template_item.state | default(omit) }}
         survey_enabled: >-
           {{ tower_template_item.survey_enabled | default(omit) }}
+        survey_spec: >-
+          {{ tower_template_item.survey_spec | default(omit) }}
         tower_config_file: "{{ tower_config_file | default(omit) }}"
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"

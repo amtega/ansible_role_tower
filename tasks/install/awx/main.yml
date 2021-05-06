@@ -5,7 +5,8 @@
     - name: Flush handlers to enfoce selinux config
       ansible.builtin.meta: flush_handlers
 
-    - ansible.builtin.include_role:
+    - name: Setup docker engine
+      ansible.builtin.include_role:
         name: amtega.docker_engine
       when: tower_install | bool
       vars:
@@ -84,10 +85,12 @@
         - tower_awx_install_result is changed
         - not tower_awx_install_result.stdout is search("failed=0")
 
-    - ansible.builtin.include_tasks:
+    - name: Cleanup tasks
+      ansible.builtin.include_tasks:
         file: cleanup.yml
-        
-    - ansible.builtin.include_tasks:
+
+    - name: Wait for startup
+      ansible.builtin.include_tasks:
         file: wait.yml
   environment: "{{ proxy_client_environment }}"
   tags:

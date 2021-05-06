@@ -5,9 +5,6 @@
     - import_tasks: resources_virtualenvs.yml
       when: tower_resources_setup_virtualenvs | bool
 
-    - import_tasks: resources_surveys.yml
-      when: tower_resources_setup_surveys | bool
-
     - import_tasks: resources_credentials.yml
       when: tower_resources_setup_credentials | bool
 

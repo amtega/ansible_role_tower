@@ -2,7 +2,8 @@
 # Install tasks
 
 - block:
-    - ansible.builtin.include_tasks:
+    - name: Prepare install
+      ansible.builtin.include_tasks:
         file: common/prepare.yml
 
     - block:

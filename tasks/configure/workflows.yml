@@ -24,6 +24,8 @@
           {{ tower_workflow_item.state | default(omit) }}
         survey_enabled: >-
           {{ tower_workflow_item.survey_enabled | default(omit) }}
+        survey_spec: >-
+          {{ tower_workflow_item.survey_spec | default(omit) }}
         tower_config_file: "{{ tower_config_file | default(omit) }}"
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
