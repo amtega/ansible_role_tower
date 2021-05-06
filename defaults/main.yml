@@ -352,6 +352,13 @@ tower_inventories_load_from_hostvars: no
 # - survey_enabled
 # - verbosity
 #
+# Also, you can specify the following settings for project update (with the same
+# meaning that in ansible `tower_project_update` module:
+#
+# - update_interval
+# - update_timeout
+# - update_wait
+#
 # Also, you can provide to the previous template dictionary the attribute
 # `credentials` containing a list of dictionarires with the credentials to apply
 # to the template. The structure of these dicts is the following:

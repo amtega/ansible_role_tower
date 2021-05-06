@@ -44,6 +44,35 @@
         label: "{{ tower_project_item.name }}"
       ignore_errors: "{{ tower_ignore_errors | bool }}"
 
+    - name: Update tower projects
+      awx.awx.tower_project_update:
+        name: >-
+          {{ tower_project_item.name | default(omit) }}
+        organization: >-
+          {{ tower_project_item.organization | default(omit) }}
+        interval: >-
+          {{ tower_project_item.update_interval | default(omit) }}
+        timeout: >-
+          {{ tower_project_item.update_timeout | default(omit) }}
+        tower_config_file: "{{ tower_config_file | default(omit) }}"
+        tower_host: "{{ tower_host }}"
+        tower_password: "{{ tower_password }}"
+        tower_username: "{{ tower_username }}"
+        validate_certs: "{{ tower_validate_certs }}"
+        wait: >-
+          {{ tower_project_item.update_wait | default(omit) }}
+      when: tower_project_item.update | default(false)
+      register: tower_projects_update_result
+      loop: >-
+        {{ tower_projects_to_manage
+          | selectattr("state", "defined")
+          | selectattr("state", "equalto", "present")
+          | list }}
+      loop_control:
+        loop_var: tower_project_item
+        label: "{{ tower_project_item.name }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
+
     - name: Wait for tower projects become available
       tower_wait_resources:
         type: project
