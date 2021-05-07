@@ -15,6 +15,20 @@ driver:
   provider:
     name: virtualbox
 lint: "${MOLECULE_SCENARIO_DIRECTORY}/../resources/linters.sh"
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
 platforms:
   - name: "centos7-${INSTANCE_UUID:-1}"
     box: centos/7

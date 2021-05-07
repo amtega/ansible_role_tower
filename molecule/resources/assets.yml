@@ -23,7 +23,7 @@ tower_users:
 tower_credentials:
   - name: test_credential
     description: Test credential
-    kind: ssh
+    credential_type: Machine
     username: test
     passwword: test
     state: present
