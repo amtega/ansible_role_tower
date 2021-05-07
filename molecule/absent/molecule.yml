@@ -29,6 +29,22 @@ platforms:
     groups:
       - molecule_hosts
       - molecule_hosts_centos
+
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
+
 provisioner:
   name: ansible
   playbooks:
@@ -51,7 +67,7 @@ provisioner:
           tower_awx_repository_clone_clean: no
 
           tower_organizations_defaults:
-            state: absent
+            state: present
 
           tower_teams_defaults:
             organization: test_organization
