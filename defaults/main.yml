@@ -223,7 +223,6 @@ tower_credentials_load_from_hostvars: no
 # List of dicts with the projects to setup. Each dict can contain the following
 # attributes with the same meaning that in ansible `tower_project` module:
 #
-# - custom_virtualenv
 # - description
 # - local_path
 # - name
