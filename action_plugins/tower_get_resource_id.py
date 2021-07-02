@@ -94,4 +94,10 @@ class ActionModule(ActionBase):
 
         super(ActionModule, self).run(tmp, task_vars)
         self._task_vars = task_vars
-        return self._gather()
+
+        try:
+            result = self._gather()
+        finally:
+            self._remove_tmp_path(self._connection._shell.tmpdir)
+
+        return result
