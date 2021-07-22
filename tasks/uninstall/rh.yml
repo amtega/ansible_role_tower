@@ -4,11 +4,11 @@
 - name: Check RH tower service script
   ansible.builtin.stat:
     path: /usr/bin/ansible-tower-service
-  register: tower_check_tower_service_script
+  register: tower_check_tower_service_script_result
 
 - name: Stop RH tower services
   ansible.builtin.command: ansible-tower-service stop
-  when: tower_check_tower_service_script.stat.exists
+  when: tower_check_tower_service_script_result.stat.exists
 
 - name: Remove RH tower packages
   ansible.builtin.package:
