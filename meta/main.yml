@@ -24,12 +24,17 @@ dependencies:
         centos: 7
 
   - role: amtega.proxy_client
+    when:
+      - not tower_skip_packages | bool
+      - not tower_skip_selinux | bool
     vars:
       proxy_client_permanent: yes
 
   - role: amtega.epel
+    when: not tower_skip_packages | bool
 
   - role: amtega.packages
+    when: not tower_skip_packages | bool
     vars:
       packages_os:
         all:
@@ -53,6 +58,7 @@ dependencies:
               state: present
 
   - role: amtega.selinux
+    when: not tower_skip_selinux | bool
     vars:
       selinux_mode: permissive
       selinux_policy: targeted
