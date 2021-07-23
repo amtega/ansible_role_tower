@@ -519,6 +519,16 @@ tower_resources_setup_galaxy_credentials: yes
 tower_resources_setup_schedules: yes
 tower_resources_setup_roles: yes
 
+# Indicate a regular expression to select by name the resources to manage.
+# This is useful if you want to reduce the number of resources to manage
+
+tower_resources_name_regex: ".*"
+
+# Indicate a regular expression to reject by name the resources to manage.
+# This is useful if you want to exclude certain items
+
+tower_resources_exclude_name_regex: "^$"
+
 # Artifact download config. This is only used when variable `tower_type` is set
 # to `rh`
 #
@@ -550,6 +560,16 @@ tower_no_log: yes
 # or you will lose the ability to decrypt your credentials
 
 tower_secret_key: awxsecret
+
+# Indicate if the role must skip packages related tasks, something that can be
+# useful if you want to speed up things
+
+tower_skip_packages: no
+
+# Indicate if the role must skip selinux tasks, something that can be useful if
+# you want to speed up things
+
+tower_skip_selinux: "{{ tower_skip_packages }}"
 
 # AWX PostgreSQL path.
 #

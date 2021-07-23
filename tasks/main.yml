@@ -61,4 +61,4 @@
         - role::tower::configure::resources::virtualenvs
         - role::tower::configure::users
 
-  environment: "{{ proxy_client_environment }}"
+  environment: "{{ proxy_client_environment | default({}) }}"
