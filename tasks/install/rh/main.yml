@@ -20,7 +20,7 @@
             file: setup.yml
       when: need_install
 
-    - name: cleanup tasks
+    - name: Cleanup tasks
       ansible.builtin.include_tasks:
         file: cleanup.yml
       when: need_install
