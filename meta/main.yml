@@ -24,9 +24,6 @@ dependencies:
         centos: 7
 
   - role: amtega.proxy_client
-    when:
-      - not tower_skip_packages | bool
-      - not tower_skip_selinux | bool
     vars:
       proxy_client_permanent: yes
 
