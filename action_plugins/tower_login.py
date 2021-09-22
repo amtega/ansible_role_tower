@@ -51,7 +51,15 @@ class ActionModule(ActionBase):
                                                   tmp=tmp)
 
                 token = uri_result["json"]["token"]
-                        
+
+        except Exception as e:
+            return dict(
+                failed=True,
+                msg="Operation in {0} failed: {1}".format(
+                    uri_result["url"],
+                    uri_result["json"].get(
+                        "msg",
+                        uri_result["json"].get("detail", uri_result["msg"]))))
         finally:
             self._remove_tmp_path(self._connection._shell.tmpdir)
 
