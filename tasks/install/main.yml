@@ -33,7 +33,8 @@
             - not need_install | bool
 
         - ansible.builtin.include_tasks:
-            file: common/facts.yml
+            file: ../common/facts.yml
+          when: not tower_configure | bool
       vars:
         ansible_local_facts: "{{ ansible_local.tower | default({}) }}"
         need_install: >-
