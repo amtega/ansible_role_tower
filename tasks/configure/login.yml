@@ -4,5 +4,8 @@
 - block:
     - name: Login into the tower api rest
       tower_login:
+
+    - ansible.builtin.include_tasks:
+        file: ../common/facts.yml
   tags:
     - always

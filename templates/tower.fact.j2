@@ -1,4 +1,8 @@
 {
   "version": {{ tower_version_to_install | to_json }},
-  "type": {{ tower_type | to_json }}
+  "type": {{ tower_type | to_json }}{% if tower_token | default("") | length == 0
+                                       and ansible_facts.tower_token is defined
+                                       and not tower_token_remove | bool %},
+  "token": "{{ ansible_facts.tower_token }}"
+                                    {% endif %}
 }
