@@ -150,7 +150,7 @@ class ActionModule(ActionBase):
 
         super(ActionModule, self).run(tmp, task_vars)
         self._tmp = tmp
-        self._task_vars = task_vars        
+        self._task_vars = task_vars
 
         try:
             result = self._call()

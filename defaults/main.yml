@@ -36,10 +36,21 @@ tower_pg_password: tower
 
 tower_host: "http://localhost:{{ tower_host_port }}"
 
-# Username/password to use for config items management
+# Username/password and token to use for config items management.
+#
+# If token is not defined the role will generate one using username/password and
+# then store it into a local fact in the server to allow reutilization.
+#
+# If tower_token_remove is set to yes the local fact storing token will be
+# removed
+#
+# If tower_token_cleanup is set to yes all tokens will deleted from server
 
 tower_username: admin
 tower_password: "{{ tower_admin_password }}"
+#tower_token:
+tower_token_remove: no
+tower_token_cleanup: no
 
 # Verify or not SSL certs
 
