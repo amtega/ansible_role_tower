@@ -9,6 +9,7 @@
      | cut -f 1 -d' '
   when: yes
   failed_when: no
+  changed_when: no
   args:
     warn: no
   register: tower_search_awx_containers_result
