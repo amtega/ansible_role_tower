@@ -40,7 +40,7 @@
         line: "{{ tower_awx_option.name }}={{ tower_awx_option.value }}"
         owner: root
         group: root
-        mode: 660
+        mode: 0660
       when: tower_awx_option.value | string | length > 0
       loop:
         - name: admin_password
