@@ -17,7 +17,7 @@
       loop_control:
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors | bool }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"  # noqa ignore-errors
 
     - name: Setup tower job templates
       awx.awx.tower_job_template:
@@ -103,7 +103,7 @@
              | select("changed")
              | map(attribute="id")
              | list }}
-      ignore_errors: "{{ tower_ignore_errors | bool }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"  # noqa ignore-errors
 
   tags:
     - role::tower

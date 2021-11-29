@@ -70,7 +70,7 @@ class ActionModule(ActionBase):
         self._task_vars = task_vars
 
         try:
-            result =self._setup()
+            result = self._setup()
         finally:
             self._remove_tmp_path(self._connection._shell.tmpdir)
 
