@@ -46,7 +46,7 @@
              | select("changed")
              | map(attribute="id")
              | list }}
-      ignore_errors: "{{ tower_ignore_errors | bool }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"  # noqa ignore-errors
   tags:
     - role::tower
     - role::tower::configure

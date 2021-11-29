@@ -9,12 +9,13 @@
      | cut -f 1 -d' '
   when: yes
   failed_when: no
+  changed_when: no
   args:
     warn: no
   register: tower_search_awx_containers_result
 
 - name: Remove AWX containers
-  ansible.builtin.shell: >-
+  ansible.builtin.command: >-
     docker rm --force
     {{ tower_search_awx_containers_result.stdout_lines | join(" ") }}
   args:
