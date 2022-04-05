@@ -32,7 +32,7 @@
         tower_username: "{{ tower_username }}"
         validate_certs: "{{ tower_validate_certs }}"
       register: tower_workflows_setup_result
-      loop: "{{ tower_workflows_to_manage }}"
+      loop: "{{ _tower_workflows_to_manage }}"
       loop_control:
         loop_var: tower_workflow_item
         label: "{{ tower_workflow_item.name }}"

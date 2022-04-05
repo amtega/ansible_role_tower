@@ -1,8 +1,9 @@
 ---
 # Setup projects tasks
 
+# FIXME:
 - block:
-    - name: Setup tower projects
+    - name: Launch tower projects setup
       awx.awx.tower_project:
         description: >-
           {{ tower_project_item.description | default(omit) }}
@@ -35,12 +36,35 @@
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
         validate_certs: "{{ tower_validate_certs }}"
-      register: tower_projects_setup_result
-      loop: "{{ tower_projects_to_manage }}"
+      register: tower_projects_async_setup_result
+      changed_when: no
+      # register: tower_projects_setup_result
+      loop: "{{ _tower_projects_to_manage }}"
       loop_control:
         loop_var: tower_project_item
         label: "{{ tower_project_item.name }}"
+      async: "{{ tower_async_timeout }}"
+      poll: 0
       ignore_errors: "{{ tower_ignore_errors | bool }}"
+      no_log: "{{ tower_no_log }}"
+
+    # - name: Check tower projects setup
+    #   async_status:
+    #     jid: >-
+    #       {{ tower_projects_async_setup_result.results
+    #          [tower_project_index].ansible_job_id }}
+    #   when: tower_projects_async_setup_result is defined
+    #   register: tower_projects_setup_result
+    #   changed_when: no
+    #   loop: "{{ _tower_projects_to_manage }}"
+    #   loop_control:
+    #     loop_var: tower_project_item
+    #     index_var: tower_project_index
+    #     label: "{{ tower_project_item.name }}"
+    #   until: tower_projects_setup_result.finished
+    #   retries: "{{ tower_get_status_retries }}"
+    #   delay: "{{ tower_get_status_delay }}"
+    #   no_log: "{{ tower_no_log }}"
 
     - name: Update tower projects
       awx.awx.tower_project_update:
@@ -62,7 +86,7 @@
       when: tower_project_item.update | default(false)
       register: tower_projects_update_result
       loop: >-
-        {{ tower_projects_to_manage
+        {{ _tower_projects_to_manage
           | selectattr("state", "defined")
           | selectattr("state", "equalto", "present")
           | list }}
@@ -75,7 +99,7 @@
       tower_wait_resources:
         type: project
         ids: >-
-          {{ tower_projects_setup_result.results
+          {{ tower_projects_update_result.results
              | select("changed")
              | selectattr("tower_project_item.state", "equalto", "present")
              | map(attribute="id")

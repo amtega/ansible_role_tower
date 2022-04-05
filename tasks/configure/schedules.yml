@@ -1,0 +1,33 @@
+---
+# Setup schedules tasks
+
+- name: Setup tower schedules
+  awx.awx.schedule:
+    name: "{{ tower_schedule_item.name | default(omit) }}"
+    state: "{{ tower_schedule_item.state | default(omit) }}"
+    unified_job_template: >-
+      {{ tower_schedule_item.unified_job_template | default(omit) }}
+    rrule: "{{ tower_schedule_item.rrule | default(omit) }}"
+    enabled: "{{ tower_schedule_item.enabled | default(omit) }}"
+    extra_data: "{{ tower_schedule_item.extra_data | default(omit) }}"
+    tower_config_file: "{{ tower_config_file | default(omit) }}"
+    tower_host: "{{ tower_host }}"
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    validate_certs: "{{ tower_validate_certs }}"
+    verbosity: "{{ tower_template_item.verbosity | default(omit) }}"
+  register: tower_schedules_setup_result
+  loop: "{{ lookup('template', 'schedules.yml.j2') | from_yaml }}"
+  loop_control:
+    loop_var: tower_schedule_item
+    label: >-
+      {{ tower_schedule_item.unified_job_template }} /
+      {{ tower_schedule_item.name }} /
+      {{ tower_schedule_item.state }}
+  ignore_errors: "{{ tower_ignore_errors | bool }}"
+  no_log: "{{ tower_no_log }}"
+  tags:
+    - role::tower
+    - role::tower::configure
+    - role::tower::configure::resources
+    - role::tower::configure::resources::schedules

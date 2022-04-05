@@ -56,7 +56,7 @@
   register: tower_workflows_nodes_setup_result
   loop: >-
     {{ lookup("subelements",
-              tower_workflows_to_manage
+              _tower_workflows_to_manage
               | selectattr("state", "equalto", "present")
               | list,
               "nodes") }}

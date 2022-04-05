@@ -1,0 +1,20 @@
+{% set ns = namespace(found=false) %}
+
+{% for o in (_tower_templates_to_manage + _tower_workflows_to_manage)
+            | selectattr("state", "equalto", "present")
+            | selectattr("schedules", "defined")
+            | list %}
+{% for s in o.schedules %}
+{% set ns.found = true %}
+- name: {{ s.name }}
+  state: {{ s.state | default("present") }}
+  unified_job_template: {{ o.name }}
+  rrule: {{ s.rrule }}
+  enabled: {{ s.enabled | default(true) }}
+  extra_data: {{ s.extra_data | default({}) }}
+{% endfor %}
+{% endfor %}
+
+{% if not ns.found %}
+[]
+{% endif %}

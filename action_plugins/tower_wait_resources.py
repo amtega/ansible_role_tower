@@ -44,8 +44,8 @@ class ActionModule(ActionBase):
         self._args = self._task.args
 
         ids = self._args["ids"]
-        retries = self._get_task_var("tower_projects_get_status_retries")
-        delay = self._get_task_var("tower_projects_get_status_delay")
+        retries = self._get_task_var("tower_get_status_retries")
+        delay = self._get_task_var("tower_get_status_delay")
 
         for id in ids:
             ok = False

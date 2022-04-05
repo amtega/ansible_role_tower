@@ -12,7 +12,7 @@
     value: "{{ tower_setting_item.value | string }}"
   register: tower_settings_setup_result
   when: tower_setting_item.force_update | default(true) | bool
-  loop: "{{ tower_settings_to_manage }}"
+  loop: "{{ _tower_settings_to_manage }}"
   loop_control:
     loop_var: tower_setting_item
     label: "{{ tower_setting_item.name }}"
