@@ -342,6 +342,7 @@ tower_inventories_load_from_hostvars: no
 # - force_handlers_enabled
 # - forks
 # - host_config_key
+# - interval
 # - inventory
 # - job_tags
 # - job_type
@@ -352,15 +353,15 @@ tower_inventories_load_from_hostvars: no
 # - skip_tags
 # - start_at_task
 # - state
+# - timeout
 # - survey_enabled
 # - verbosity
+# - wait
 #
 # Also, you can specify the following settings for project update (with the same
 # meaning that in ansible `tower_project_update` module:
 #
-# - update_interval
-# - update_timeout
-# - update_wait
+
 #
 # Also, you can provide to the previous template dictionary the attribute
 # `credentials` containing a list of dictionarires with the credentials to apply

@@ -1,7 +1,6 @@
 ---
 # Setup templates tasks
 
-# FIXME:
 - block:
     # Seems that ansible tower_job_template module is unable to remove a
     # template if the linked project doesn't exist. So, we apply a workaround
@@ -91,7 +90,6 @@
         validate_certs: "{{ tower_validate_certs }}"
         verbosity: "{{ tower_template_item.verbosity | default(omit) }}"
       register: tower_templates_async_setup_result
-      # register: tower_templates_setup_result
       changed_when: no
       loop: >-
         {{ _tower_templates_to_manage
@@ -105,35 +103,24 @@
       ignore_errors: "{{ tower_ignore_errors | bool }}"
       no_log: "{{ tower_no_log }}"
 
-    # - name: Check tower job templates setup
-    #   async_status:
-    #     jid: >-
-    #       {{ tower_templates_async_setup_result.results
-    #          [tower_template_index].ansible_job_id }}
-    #   when: tower_projects_async_setup_result is defined
-    #   register: tower_templates_setup_result
-    #   loop: >-
-    #     {{ _tower_templates_to_manage
-    #        | selectattr("state", "equalto", "present")
-    #        | list }}
-    #   loop_control:
-    #     loop_var: tower_template_item
-    #     index_var: tower_template_index
-    #     label: "{{ tower_template_item.name }}"
-    #   until: tower_templates_setup_result.finished
-    #   retries: "{{ tower_get_status_retries }}"
-    #   delay: "{{ tower_get_status_delay }}"
-
-    # - name: Wait for tower templates become available
-    #   tower_wait_resources:
-    #     type: job_template
-    #     ids: >-
-    #       {{ tower_templates_setup_result.results
-    #          | select("changed")
-    #          | map(attribute="id")
-    #          | list }}
-    #   ignore_errors: "{{ tower_ignore_errors | bool }}"  # noqa ignore-errors
-
+    - name: Check tower job templates setup
+      async_status:
+        jid: >-
+          {{ tower_templates_async_setup_result.results
+             [tower_template_index].ansible_job_id }}
+      when: tower_projects_async_setup_result is defined
+      register: tower_templates_setup_result
+      loop: >-
+        {{ _tower_templates_to_manage
+           | selectattr("state", "equalto", "present")
+           | list }}
+      loop_control:
+        loop_var: tower_template_item
+        index_var: tower_template_index
+        label: "{{ tower_template_item.name }}"
+      until: tower_templates_setup_result.finished      
+      retries: "{{ tower_get_status_retries }}"
+      delay: "{{ tower_get_status_delay }}"
   tags:
     - role::tower
     - role::tower::configure
