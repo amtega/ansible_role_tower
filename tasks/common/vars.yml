@@ -19,7 +19,10 @@
         _tower_settings_to_manage: >-
           {{ (tower_settings
               + ((tower_settings_load_from_hostvars)
-                 | ternary(tower_settings_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_settings_hostvars
+                           | default([])
+                           | flatten,
+                           [])))
              | selectattr("name", "search", tower_resources_name_regex)
              | rejectattr("name", "search", tower_resources_exclude_name_regex)
              | list }}
@@ -27,7 +30,10 @@
         _tower_organizations_to_manage: >-
           {{ (tower_organizations
               + ((tower_organizations_load_from_hostvars)
-                 | ternary(tower_organizations_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_organizations_hostvars
+                           | default([])
+                           | flatten,
+                           [])))
              | map("reverse_combine", tower_organizations_defaults)
              | selectattr("name", "search", tower_resources_name_regex)
              | rejectattr("name", "search", tower_resources_exclude_name_regex)
@@ -36,7 +42,10 @@
         _tower_teams_to_manage: >-
           {{ (tower_teams
               + ((tower_teams_load_from_hostvars)
-                 | ternary(tower_teams_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_teams_hostvars
+                           | default([])
+                           | flatten,
+                           [])))
              | map("reverse_combine", tower_teams_defaults)
              | selectattr("name", "search", tower_resources_name_regex)
              | rejectattr("name", "search", tower_resources_exclude_name_regex)
@@ -45,16 +54,23 @@
         _tower_users_to_manage: >-
           {{ (tower_users
               + ((tower_users_load_from_hostvars)
-                 | ternary(tower_users_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_users_hostvars
+                           | default([])
+                           | flatten, [])))
              | map("reverse_combine", tower_users_defaults)
              | selectattr("username", "search", tower_resources_name_regex)
-             | rejectattr("username", "search", tower_resources_exclude_name_regex)
+             | rejectattr("username",
+                          "search",
+                          tower_resources_exclude_name_regex)
              | list }}
 
         _tower_credentials_to_manage: >-
           {{ (tower_credentials
               + ((tower_credentials_load_from_hostvars)
-                 | ternary(tower_credentials_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_credentials_hostvars
+                           | default([])
+                           | flatten,
+                           [])))
              | map("reverse_combine", tower_credentials_defaults)
              | selectattr("name", "search", tower_resources_name_regex)
              | rejectattr("name", "search", tower_resources_exclude_name_regex)
@@ -63,7 +79,10 @@
         _tower_projects_to_manage: >-
           {{ (tower_projects
               + ((tower_projects_load_from_hostvars)
-                 | ternary(tower_projects_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_projects_hostvars
+                           | default([])
+                           | flatten,
+                           [])))
              | map("reverse_combine", tower_projects_defaults)
              | selectattr("name", "search", tower_resources_name_regex)
              | rejectattr("name", "search", tower_resources_exclude_name_regex)
@@ -72,7 +91,10 @@
         _tower_inventories_to_manage: >-
           {{ (tower_inventories
               + ((tower_inventories_load_from_hostvars)
-                 | ternary(tower_inventories_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_inventories_hostvars
+                           | default([])
+                           | flatten,
+                           [])))
              | map("reverse_combine", tower_inventories_defaults)
              | selectattr("name", "search", tower_resources_name_regex)
              | rejectattr("name", "search", tower_resources_exclude_name_regex)
@@ -81,7 +103,10 @@
         _tower_templates_to_manage: >-
           {{ (tower_templates
               + ((tower_templates_load_from_hostvars)
-                 | ternary(tower_templates_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_templates_hostvars
+                           | default([])
+                           | flatten,
+                           [])))
              | map("reverse_combine", tower_templates_defaults)
              | selectattr("name", "search", tower_resources_name_regex)
              | rejectattr("name", "search", tower_resources_exclude_name_regex)
@@ -90,7 +115,10 @@
         _tower_workflows_to_manage: >-
           {{ (tower_workflows
               + ((tower_workflows_load_from_hostvars)
-                 | ternary(tower_workflows_hostvars | default([]) | flatten, [])))
+                 | ternary(tower_workflows_hostvars
+                           | default([])
+                           | flatten,
+                           [])))
              | map("reverse_combine", tower_workflows_defaults)
              | selectattr("name", "search", tower_resources_name_regex)
              | rejectattr("name", "search", tower_resources_exclude_name_regex)
