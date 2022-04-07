@@ -17,49 +17,48 @@ galaxy_info:
     - awx
     - tower
 
-# FIXME:
 dependencies:
-  # - role: amtega.check_platform
-  #   vars:
-  #     check_platform_distributions:
-  #       centos: 7
-  #
-  # - role: amtega.proxy_client
-  #   vars:
-  #     proxy_client_permanent: yes
-  #
-  # - role: amtega.epel
-  #   when: not tower_skip_packages | bool
-  #
-  # - role: amtega.packages
-  #   when: not tower_skip_packages | bool
-  #   vars:
-  #     packages_os:
-  #       all:
-  #         all:
-  #           - name: ansible
-  #             state: present
-  #           - name: docker-compose
-  #             state: present
-  #           - name: git
-  #             state: present
-  #           - name: libselinux-python3
-  #             state: present
-  #           - name: python3
-  #             state: present
-  #           - name: python36-docker
-  #             state: present
-  #     packages_python:
-  #       all:
-  #         all:
-  #           - name: ansible-tower-cli
-  #             state: present
-  #
-  # - role: amtega.selinux
-  #   when: not tower_skip_selinux | bool
-  #   vars:
-  #     selinux_mode: permissive
-  #     selinux_policy: targeted
+  - role: amtega.check_platform
+    vars:
+      check_platform_distributions:
+        centos: 7
+
+  - role: amtega.proxy_client
+    vars:
+      proxy_client_permanent: yes
+
+  - role: amtega.epel
+    when: not tower_skip_packages | bool
+
+  - role: amtega.packages
+    when: not tower_skip_packages | bool
+    vars:
+      packages_os:
+        all:
+          all:
+            - name: ansible
+              state: present
+            - name: docker-compose
+              state: present
+            - name: git
+              state: present
+            - name: libselinux-python3
+              state: present
+            - name: python3
+              state: present
+            - name: python36-docker
+              state: present
+      packages_python:
+        all:
+          all:
+            - name: ansible-tower-cli
+              state: present
+
+  - role: amtega.selinux
+    when: not tower_skip_selinux | bool
+    vars:
+      selinux_mode: permissive
+      selinux_policy: targeted
 
   - role: amtega.select_hostvars
     vars:

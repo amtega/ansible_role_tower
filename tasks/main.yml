@@ -1,7 +1,6 @@
 ---
 # Role tasks
 
-# FIXME:
 - block:
     - name: Setup variables
       ansible.builtin.include_tasks:
@@ -9,23 +8,23 @@
       tags:
         - always
 
-    # - name: Install tasks
-    #   ansible.builtin.include_tasks:
-    #     file: install/main.yml
-    #   when:
-    #     - tower_state == "present"
-    #     - tower_install | bool
-    #   tags:
-    #     - role::tower
-    #     - role::tower::install
-    #
-    # - name: Uninstall tasks
-    #   ansible.builtin.include_tasks:
-    #     file: uninstall/main.yml
-    #   when: tower_state == "absent"
-    #   tags:
-    #     - role::tower
-    #     - role::tower::uninstall
+    - name: Install tasks
+      ansible.builtin.include_tasks:
+        file: install/main.yml
+      when:
+        - tower_state == "present"
+        - tower_install | bool
+      tags:
+        - role::tower
+        - role::tower::install
+
+    - name: Uninstall tasks
+      ansible.builtin.include_tasks:
+        file: uninstall/main.yml
+      when: tower_state == "absent"
+      tags:
+        - role::tower
+        - role::tower::uninstall
 
     - name: Configure tasks
       ansible.builtin.include_tasks:

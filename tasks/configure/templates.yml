@@ -118,9 +118,10 @@
         loop_var: tower_template_item
         index_var: tower_template_index
         label: "{{ tower_template_item.name }}"
-      until: tower_templates_setup_result.finished      
+      until: tower_templates_setup_result.finished
       retries: "{{ tower_get_status_retries }}"
       delay: "{{ tower_get_status_delay }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

@@ -1,70 +1,100 @@
 ---
 # Setup workflows tasks
 
-- name: Setup tower workflows templates nodes
-  awx.awx.tower_workflow_job_template_node:
-    all_parents_must_converge: >-
-      {{ tower_workflow_item.1.all_parents_must_converge | default(omit) }}
-    always_nodes: >-
-      {{ tower_workflow_item.1.always_nodes | default(omit) }}
-    credentials: >-
-      {{ tower_workflow_item.1.credentials | default(omit) }}
-    diff_mode: >-
-      {{ tower_workflow_item.1.diff_mode | default(omit) }}
-    extra_data: >-
-      {{ tower_workflow_item.1.extra_data | default(omit) }}
-    failure_nodes: >-
-      {{ tower_workflow_item.1.failure_nodes | default(omit) }}
-    identifier: >-
-      {{ tower_workflow_item.1.identifier | default(omit) }}
-    inventory: >-
-      {{ tower_workflow_item.1.inventory | default(omit) }}
-    job_tags: >-
-      {{ tower_workflow_item.1.job_tags | default(omit) }}
-    job_type: >-
-      {{ tower_workflow_item.1.job_type | default(omit) }}
-    limit: >-
-      {{ tower_workflow_item.1.limit | default(omit) }}
-    organization: >-
-      {{ tower_workflow_item.1.organization | default(omit) }}
-    scm_branch: >-
-      {{ tower_workflow_item.1.scm_branch | default(omit) }}
-    skip_tags: >-
-      {{ tower_workflow_item.1.skip_tags | default(omit) }}
-    state: >-
-      {{ tower_workflow_item.1.state | default(omit) }}
-    success_nodes: >-
-      {{ tower_workflow_item.1.success_nodes | default(omit) }}
-    tower_config_file: >-
-      {{ tower_config_file | default(omit) }}
-    tower_host: >-
-      {{ tower_host }}
-    tower_oauthtoken: >-
-      {{ ansible_facts.tower_token }}
-    tower_password: >-
-      {{ tower_password }}
-    tower_username: >-
-      {{ tower_password }}
-    unified_job_template: >-
-      {{ tower_workflow_item.1.unified_job_template | default(omit) }}
-    validate_certs: >-
-      {{ tower_validate_certs }}
-    verbosity: >-
-      {{ tower_workflow_item.1.verbosity | default(omit) }}
-    workflow_job_template: >-
-      {{ tower_workflow_item.0.name | default(omit) }}
-  register: tower_workflows_nodes_setup_result
-  loop: >-
-    {{ lookup("subelements",
-              _tower_workflows_to_manage
-              | selectattr("state", "equalto", "present")
-              | list,
-              "nodes") }}
-  loop_control:
-    loop_var: tower_workflow_item
-    label: >-
-      {{ tower_workflow_item.0.name }} / {{ tower_workflow_item.1.identifier }}
-  ignore_errors: "{{ tower_ignore_errors | bool }}"
+- block:
+    - name: Launch tower workflows templates nodes setup
+      awx.awx.tower_workflow_job_template_node:
+        all_parents_must_converge: >-
+          {{ tower_workflow_item.1.all_parents_must_converge | default(omit) }}
+        always_nodes: >-
+          {{ tower_workflow_item.1.always_nodes | default(omit) }}
+        credentials: >-
+          {{ tower_workflow_item.1.credentials | default(omit) }}
+        diff_mode: >-
+          {{ tower_workflow_item.1.diff_mode | default(omit) }}
+        extra_data: >-
+          {{ tower_workflow_item.1.extra_data | default(omit) }}
+        failure_nodes: >-
+          {{ tower_workflow_item.1.failure_nodes | default(omit) }}
+        identifier: >-
+          {{ tower_workflow_item.1.identifier | default(omit) }}
+        inventory: >-
+          {{ tower_workflow_item.1.inventory | default(omit) }}
+        job_tags: >-
+          {{ tower_workflow_item.1.job_tags | default(omit) }}
+        job_type: >-
+          {{ tower_workflow_item.1.job_type | default(omit) }}
+        limit: >-
+          {{ tower_workflow_item.1.limit | default(omit) }}
+        organization: >-
+          {{ tower_workflow_item.1.organization | default(omit) }}
+        scm_branch: >-
+          {{ tower_workflow_item.1.scm_branch | default(omit) }}
+        skip_tags: >-
+          {{ tower_workflow_item.1.skip_tags | default(omit) }}
+        state: >-
+          {{ tower_workflow_item.1.state | default(omit) }}
+        success_nodes: >-
+          {{ tower_workflow_item.1.success_nodes | default(omit) }}
+        tower_config_file: >-
+          {{ tower_config_file | default(omit) }}
+        tower_host: >-
+          {{ tower_host }}
+        tower_oauthtoken: >-
+          {{ ansible_facts.tower_token }}
+        tower_password: >-
+          {{ tower_password }}
+        tower_username: >-
+          {{ tower_password }}
+        unified_job_template: >-
+          {{ tower_workflow_item.1.unified_job_template | default(omit) }}
+        validate_certs: >-
+          {{ tower_validate_certs }}
+        verbosity: >-
+          {{ tower_workflow_item.1.verbosity | default(omit) }}
+        workflow_job_template: >-
+          {{ tower_workflow_item.0.name | default(omit) }}
+      register: tower_workflows_nodes_async_setup_result
+      changed_when: no
+      loop: >-
+        {{ lookup("subelements",
+                  _tower_workflows_to_manage
+                  | selectattr("state", "equalto", "present")
+                  | list,
+                  "nodes") }}
+      loop_control:
+        loop_var: tower_workflow_item
+        label: >-
+          {{ tower_workflow_item.0.name }} /
+          {{ tower_workflow_item.1.identifier }}
+      async: "{{ tower_async_timeout }}"
+      poll: 0
+      no_log: "{{ tower_no_log }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
+
+    - name: Check tower workflows templates nodes setup
+      async_status:
+        jid: >-
+          {{ tower_workflows_nodes_async_setup_result.results
+             [tower_workflow_index].ansible_job_id }}
+      when: tower_workflows_nodes_async_setup_result is defined
+      register: tower_workflows_nodes_setup_result
+      loop: >-
+        {{ lookup("subelements",
+                  _tower_workflows_to_manage
+                  | selectattr("state", "equalto", "present")
+                  | list,
+                  "nodes") }}
+      loop_control:
+        loop_var: tower_workflow_item
+        index_var: tower_workflow_index
+        label: >-
+          {{ tower_workflow_item.0.name }} /
+          {{ tower_workflow_item.1.identifier }}
+      until: tower_workflows_nodes_setup_result.finished
+      retries: "{{ tower_get_status_retries }}"
+      delay: "{{ tower_get_status_delay }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

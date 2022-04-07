@@ -1,38 +1,37 @@
 ---
 # Tower configuration tasks
 
-# FIXME:
 - import_tasks: login.yml
-# - import_tasks: license.yml
-# - import_tasks: settings.yml
+- import_tasks: license.yml
+- import_tasks: settings.yml
 
 # It's better to remove organizations with the fewer number of items possible
 # to avoid lock conditions. So, here we only setup the organizations with
 # present state, and delay the removal of the absent state ones to later steps
 
-# - import_tasks: organizations.yml
-#   vars:
-#     tower_organizations_with_state: "present"
-#
-# - import_tasks: teams.yml
-# - import_tasks: users.yml
-# - import_tasks: credentials.yml
-# - import_tasks: credentials_security.yml
+- import_tasks: organizations.yml
+  vars:
+    tower_organizations_with_state: "present"
+
+- import_tasks: teams.yml
+- import_tasks: users.yml
+- import_tasks: credentials.yml
+- import_tasks: credentials_security.yml
 - import_tasks: projects.yml
-# - import_tasks: inventories.yml
-# - import_tasks: inventories_sources.yml
+- import_tasks: inventories.yml
+- import_tasks: inventories_sources.yml
 - import_tasks: templates.yml
-# - import_tasks: workflows.yml
+- import_tasks: workflows.yml
 
-# - import_tasks: workflows_nodes.yml
-#   when: tower_workflows_setup_nodes | bool
+- import_tasks: workflows_nodes.yml
+  when: tower_workflows_setup_nodes | bool
 
-# - import_tasks: roles.yml
-#   when: tower_resources_setup_roles | bool
+- import_tasks: roles.yml
+  when: tower_resources_setup_roles | bool
 
 - import_tasks: schedules.yml
   when: tower_resources_setup_schedules | bool
 
-# - import_tasks: organizations.yml
-#   vars:
-#     tower_organizations_with_state: "absent"
+- import_tasks: organizations.yml
+  vars:
+    tower_organizations_with_state: "absent"

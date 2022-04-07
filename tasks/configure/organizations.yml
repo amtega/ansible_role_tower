@@ -21,6 +21,7 @@
   loop_control:
     loop_var: tower_organization_item
     label: "{{ tower_organization_item.name }}"
+  no_log: "{{ tower_no_log }}"
   ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower

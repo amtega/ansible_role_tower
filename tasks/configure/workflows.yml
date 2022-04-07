@@ -2,7 +2,7 @@
 # Setup workflows tasks
 
 - block:
-    - name: Setup tower workflows templates
+    - name: Launch tower workflows templates setup
       awx.awx.tower_workflow_job_template:
         allow_simultaneous: >-
           {{ tower_workflow_item.allow_simultaneous | default(omit) }}
@@ -31,22 +31,36 @@
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
         validate_certs: "{{ tower_validate_certs }}"
-      register: tower_workflows_setup_result
+      register: tower_workflows_async_setup_result
+      changed_when: no
       loop: "{{ _tower_workflows_to_manage }}"
       loop_control:
         loop_var: tower_workflow_item
         label: "{{ tower_workflow_item.name }}"
+      async: "{{ tower_async_timeout }}"
+      poll: 0
       ignore_errors: "{{ tower_ignore_errors | bool }}"
+      no_log: "{{ tower_no_log }}"
 
-    - name: Wait for tower workflows become available
-      tower_wait_resources:
-        type: workflow_job_template
-        ids: >-
-          {{ tower_workflows_setup_result.results
-             | select("changed")
-             | map(attribute="id")
-             | list }}
-      ignore_errors: "{{ tower_ignore_errors | bool }}"  # noqa ignore-errors
+    - name: Check tower workflows templates setup
+      async_status:
+        jid: >-
+          {{ tower_workflows_async_setup_result.results
+             [tower_workflow_index].ansible_job_id }}
+      when: tower_workflows_async_setup_result is defined
+      register: tower_workflows_setup_result
+      loop: >-
+        {{ _tower_workflows_to_manage
+           | selectattr("state", "equalto", "present")
+           | list }}
+      loop_control:
+        loop_var: tower_workflow_item
+        index_var: tower_workflow_index
+        label: "{{ tower_workflow_item.name }}"
+      until: tower_workflows_setup_result.finished
+      retries: "{{ tower_get_status_retries }}"
+      delay: "{{ tower_get_status_delay }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure
