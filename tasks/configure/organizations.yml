@@ -5,6 +5,8 @@
   awx.awx.tower_organization:
     description: "{{ tower_organization_item.description | default(omit) }}"
     name: "{{ tower_organization_item.name }}"
+    galaxy_credentials: >-
+      {{ tower_organization_item.galaxy_credentials | default(omit)  }}
     state: "{{ tower_organization_item.state | default('present') }}"
     tower_config_file: "{{ tower_config_file | default(omit) }}"
     tower_host: "{{ tower_host }}"
@@ -13,12 +15,13 @@
     validate_certs: "{{ tower_validate_certs }}"
   register: tower_organizations_setup_result
   loop: >-
-    {{ tower_organizations_to_manage
+    {{ _tower_organizations_to_manage
        | selectattr("state", "equalto", tower_organizations_with_state)
        | list }}
   loop_control:
     loop_var: tower_organization_item
     label: "{{ tower_organization_item.name }}"
+  no_log: "{{ tower_no_log }}"
   ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower

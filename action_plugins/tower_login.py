@@ -108,12 +108,13 @@ class ActionModule(ActionBase):
                             return_content=True
                         )
 
-                        uri_result = self._execute_module(module_name='uri',
+                        token_list_uri_result = self._execute_module(
+                                                          module_name='uri',
                                                           module_args=uri_args,
                                                           task_vars=task_vars,
                                                           tmp=tmp)
 
-                        for token in uri_result["json"]["results"]:
+                        for token in token_list_uri_result["json"]["results"]:
                             uri_args = dict(
                                 url=tokens_url + str(token["id"]) + "/",
                                 method="DELETE",
@@ -131,10 +132,10 @@ class ActionModule(ActionBase):
                                                         task_vars=task_vars,
                                                         tmp=tmp)
 
-                        if "next" in uri_result["json"]:
+                        if "next" in token_list_uri_result["json"]:
                             tokens_url = "{host}{next}".format(
-                                            host=tower_host,
-                                            next=uri_result["json"]["next"])
+                                    host=tower_host,
+                                    next=token_list_uri_result["json"]["next"])
                         else:
                             more_tokens = False
 
@@ -160,8 +161,9 @@ class ActionModule(ActionBase):
         except Exception as e:
             return dict(
                 failed=True,
-                msg="Operation in {0} failed: {1}".format(uri_result["url"],
-                                                          e))
+                msg="Operation in {0} failed: {1} / {2}".format(uri_result["url"],
+                                                                e,
+                                                                uri_result))
         finally:
             self._remove_tmp_path(self._connection._shell.tmpdir)
 

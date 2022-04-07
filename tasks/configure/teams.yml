@@ -12,7 +12,7 @@
     tower_username: "{{ tower_username }}"
     validate_certs: "{{ tower_validate_certs }}"
   register: tower_teams_setup_result
-  loop: "{{ tower_teams_to_manage }}"
+  loop: "{{ _tower_teams_to_manage }}"
   loop_control:
     loop_var: tower_team_item
     label: "{{ tower_team_item.name }}"

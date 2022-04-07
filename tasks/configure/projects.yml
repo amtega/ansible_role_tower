@@ -2,10 +2,12 @@
 # Setup projects tasks
 
 - block:
-    - name: Setup tower projects
+    - name: Launch tower projects setup
       awx.awx.tower_project:
         description: >-
           {{ tower_project_item.description | default(omit) }}
+        interval: >-
+          {{ tower_project_item.interval | default(omit) }}
         local_path: >-
           {{ tower_project_item.local_path | default(omit) }}
         name: >-
@@ -20,6 +22,8 @@
           {{ tower_project_item.scm_credential | default(omit) }}
         scm_delete_on_update: >-
           {{ tower_project_item.scm_delete_on_update | default(omit) }}
+        scm_track_submodules: >-
+          {{ tower_project_item.scm_track_submodules | default(omit) }}
         scm_type: >-
           {{ tower_project_item.scm_type | default(omit) }}
         scm_update_cache_timeout: >-
@@ -30,57 +34,42 @@
           {{ tower_project_item.scm_url | default(omit) }}
         state: >-
           {{ tower_project_item.state | default(omit) }}
-        tower_config_file: "{{ tower_config_file | default(omit) }}"
-        tower_host: "{{ tower_host }}"
-        tower_password: "{{ tower_password }}"
-        tower_username: "{{ tower_username }}"
-        validate_certs: "{{ tower_validate_certs }}"
-      register: tower_projects_setup_result
-      loop: "{{ tower_projects_to_manage }}"
-      loop_control:
-        loop_var: tower_project_item
-        label: "{{ tower_project_item.name }}"
-      ignore_errors: "{{ tower_ignore_errors | bool }}"
-
-    - name: Update tower projects
-      awx.awx.tower_project_update:
-        name: >-
-          {{ tower_project_item.name | default(omit) }}
-        organization: >-
-          {{ tower_project_item.organization | default(omit) }}
-        interval: >-
-          {{ tower_project_item.update_interval | default(omit) }}
         timeout: >-
-          {{ tower_project_item.update_timeout | default(omit) }}
+          {{ tower_project_item.timeout | default(omit) }}
         tower_config_file: "{{ tower_config_file | default(omit) }}"
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
+        wait: "{{ tower_project_item.wait | default(omit) }}"
         validate_certs: "{{ tower_validate_certs }}"
-        wait: >-
-          {{ tower_project_item.update_wait | default(omit) }}
-      when: tower_project_item.update | default(false)
-      register: tower_projects_update_result
-      loop: >-
-        {{ tower_projects_to_manage
-          | selectattr("state", "defined")
-          | selectattr("state", "equalto", "present")
-          | list }}
+      register: tower_projects_async_setup_result
+      changed_when: no
+      loop: "{{ _tower_projects_to_manage }}"
       loop_control:
         loop_var: tower_project_item
         label: "{{ tower_project_item.name }}"
+      async: "{{ tower_async_timeout }}"
+      poll: 0
       ignore_errors: "{{ tower_ignore_errors | bool }}"
+      no_log: "{{ tower_no_log }}"
 
-    - name: Wait for tower projects become available
-      tower_wait_resources:
-        type: project
-        ids: >-
-          {{ tower_projects_setup_result.results
-             | select("changed")
-             | selectattr("tower_project_item.state", "equalto", "present")
-             | map(attribute="id")
-             | list }}
-      ignore_errors: "{{ tower_ignore_errors | bool }}"  # noqa ignore-errors
+    - name: Check tower projects setup
+      async_status:
+        jid: >-
+          {{ tower_projects_async_setup_result.results
+             [tower_project_index].ansible_job_id }}
+      when: tower_projects_async_setup_result is defined
+      register: tower_projects_setup_result
+      changed_when: no
+      loop: "{{ _tower_projects_to_manage }}"
+      loop_control:
+        loop_var: tower_project_item
+        index_var: tower_project_index
+        label: "{{ tower_project_item.name }}"
+      until: tower_projects_setup_result.finished
+      retries: "{{ tower_get_status_retries }}"
+      delay: "{{ tower_get_status_delay }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure
