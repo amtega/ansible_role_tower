@@ -111,8 +111,7 @@ tower_settings_load_from_hostvars: no
 # credentials to setup into the organization:
 #
 # - galaxy_credentials:
-#     - name: <galaxy_credential_name>
-#       state: <present_absent>
+#     -<galaxy_credential_name>
 
 tower_organizations: []
 
@@ -242,6 +241,7 @@ tower_credentials_load_from_hostvars: no
 # - scm_clean
 # - scm_credential
 # - scm_delete_on_update
+# - scm_track_submodules
 # - scm_type
 # - scm_update_cache_timeout
 # - scm_update_on_launch
@@ -255,14 +255,6 @@ tower_projects: []
 # attributes that the ones expected by the ansible `tower_project` module
 
 tower_projects_defaults: {}
-
-# Number of retries to get a success state after managing a project
-
-tower_projects_get_status_retries: 10
-
-# Number of seconds to wait between project state checks
-
-tower_projects_get_status_delay: 10
 
 # Indicate `tower_projects` must be loaded also from host variables. Any host
 # variable that begins with "tower_projects_*" and contains the necessary
@@ -343,12 +335,15 @@ tower_inventories_load_from_hostvars: no
 # - ask_verbosity
 # - become_enabled
 # - concurrent_jobs_enabled
+# - credentials
+# - custom_virtualenv
 # - description
 # - extra_vars_path
 # - fact_caching_enabled
 # - force_handlers_enabled
 # - forks
 # - host_config_key
+# - interval
 # - inventory
 # - job_tags
 # - job_type
@@ -359,15 +354,15 @@ tower_inventories_load_from_hostvars: no
 # - skip_tags
 # - start_at_task
 # - state
+# - timeout
 # - survey_enabled
 # - verbosity
+# - wait
 #
 # Also, you can specify the following settings for project update (with the same
 # meaning that in ansible `tower_project_update` module:
 #
-# - update_interval
-# - update_timeout
-# - update_wait
+
 #
 # Also, you can provide to the previous template dictionary the attribute
 # `credentials` containing a list of dictionarires with the credentials to apply
@@ -392,7 +387,7 @@ tower_inventories_load_from_hostvars: no
 # }
 #
 # Also, you can provide to the previous template dictionary the attribute
-# `roles` containing a list of dictionarires with the roles to apply to the
+# `roles` containing a list of dictionaries with the roles to apply to the
 # template. The structure of these dicts is the following:
 #
 # {
@@ -523,9 +518,6 @@ tower_workflows_setup_nodes: yes
 
 # Indicate wich items to setup for tower resources
 
-tower_resources_setup_virtualenvs: yes
-tower_resources_setup_surveys: yes
-tower_resources_setup_credentials: yes
 tower_resources_setup_galaxy_credentials: yes
 tower_resources_setup_schedules: yes
 tower_resources_setup_roles: yes
@@ -625,3 +617,15 @@ tower_awx_docker_registry_username: developer
 
 tower_awx_install_retries: 10
 tower_awx_install_pause: 30
+
+# Number of retries to get a success state after managing an object
+
+tower_get_status_retries: 60
+
+# Number of seconds to wait between state checks
+
+tower_get_status_delay: 1
+
+# Async tasks timeout
+
+tower_async_timeout: 60

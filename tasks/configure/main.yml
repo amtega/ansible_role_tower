@@ -26,7 +26,11 @@
 - import_tasks: workflows_nodes.yml
   when: tower_workflows_setup_nodes | bool
 
-- import_tasks: resources.yml
+- import_tasks: roles.yml
+  when: tower_resources_setup_roles | bool
+
+- import_tasks: schedules.yml
+  when: tower_resources_setup_schedules | bool
 
 - import_tasks: organizations.yml
   vars:

@@ -11,7 +11,7 @@
         name: "{{ tower_template_item.name }}"
         project: "{{ tower_template_item.project | default(omit) }}"
       loop: >-
-        {{ tower_templates_to_manage
+        {{ _tower_templates_to_manage
            | selectattr("state", "equalto", "absent")
            | list }}
       loop_control:
@@ -19,7 +19,7 @@
         label: "{{ tower_template_item.name }}"
       ignore_errors: "{{ tower_ignore_errors | bool }}"  # noqa ignore-errors
 
-    - name: Setup tower job templates
+    - name: Launch tower job templates setup
       awx.awx.tower_job_template:
         ask_credential: >-
           {{ tower_template_item.ask_credential | default(omit) }}
@@ -43,6 +43,10 @@
           {{ tower_template_item.become_enabled | default(omit) }}
         concurrent_jobs_enabled: >-
           {{ tower_template_item.concurrent_jobs_enabled | default(omit) }}
+        credentials: >-
+          {{ tower_template_item.credentials | default(omit) }}
+        custom_virtualenv: >-
+          {{ tower_template_item.custom_virtualenv | default(omit) }}
         description: >-
           {{ tower_template_item.description | default(omit) }}
         extra_vars_path: >-
@@ -85,26 +89,39 @@
         tower_username: "{{ tower_username }}"
         validate_certs: "{{ tower_validate_certs }}"
         verbosity: "{{ tower_template_item.verbosity | default(omit) }}"
-      register: tower_templates_setup_result
+      register: tower_templates_async_setup_result
+      changed_when: no
       loop: >-
-        {{ tower_templates_to_manage
+        {{ _tower_templates_to_manage
            | selectattr("state", "equalto", "present")
            | list }}
       loop_control:
         loop_var: tower_template_item
         label: "{{ tower_template_item.name }}"
+      async: "{{ tower_async_timeout }}"
+      poll: 0
       ignore_errors: "{{ tower_ignore_errors | bool }}"
+      no_log: "{{ tower_no_log }}"
 
-    - name: Wait for tower templates become available
-      tower_wait_resources:
-        type: job_template
-        ids: >-
-          {{ tower_templates_setup_result.results
-             | select("changed")
-             | map(attribute="id")
-             | list }}
-      ignore_errors: "{{ tower_ignore_errors | bool }}"  # noqa ignore-errors
-
+    - name: Check tower job templates setup
+      async_status:
+        jid: >-
+          {{ tower_templates_async_setup_result.results
+             [tower_template_index].ansible_job_id }}
+      when: tower_projects_async_setup_result is defined
+      register: tower_templates_setup_result
+      loop: >-
+        {{ _tower_templates_to_manage
+           | selectattr("state", "equalto", "present")
+           | list }}
+      loop_control:
+        loop_var: tower_template_item
+        index_var: tower_template_index
+        label: "{{ tower_template_item.name }}"
+      until: tower_templates_setup_result.finished
+      retries: "{{ tower_get_status_retries }}"
+      delay: "{{ tower_get_status_delay }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
   tags:
     - role::tower
     - role::tower::configure

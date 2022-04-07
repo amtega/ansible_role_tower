@@ -1,0 +1,67 @@
+{% set ns = namespace(role_defs=[]) %}
+
+{% for o in (_tower_templates_to_manage + _tower_workflows_to_manage)
+            | selectattr("state", "equalto", "present")
+            | selectattr("roles", "defined")
+            | list %}
+  {% for r in o.roles %}
+    {% set rd = {"role": r.role, "state": r.state} %}
+    {% if r.user is defined %}
+      {% set rd = rd | combine({"user": r.user}) %}
+    {% endif %}
+    {% if r.team is defined %}
+      {% set rd = rd | combine({"team": r.team}) %}
+    {% endif %}
+    {% if o in _tower_templates_to_manage %}
+      {% set rd = rd | combine({"job_templates": [o.name]}) %}
+    {% else %}
+      {% set rd = rd | combine({"workflows": [o.name]}) %}
+    {% endif %}
+    {% set ns.role_defs = ns.role_defs + [rd] %}
+  {% endfor %}
+{% endfor %}
+
+{% set nsc = namespace(user_role_defs={}, team_role_defs={}) %}
+{% for rd in ns.role_defs %}
+  {% if rd.user is defined %}
+    {% set user_rd_key = rd.role + "#" + rd.user + " #" + rd.state %}
+  {% else %}
+    {% set user_rd_key = None %}
+  {% endif %}
+  {% if rd.team is defined %}
+    {% set team_rd_key = rd.role + "#" + rd.team + "#" + rd.state %}
+  {% else %}
+    {% set team_rd_key = None %}
+  {% endif %}
+
+  {% set new_rd = {team_rd_key: {
+                      "role": rd.role,
+                      "state": rd.state,
+                      "job_templates": rd.job_templates | default([]),
+                      "workflows": rd.workflows | default([])}} %}
+
+  {% if user_rd_key != None %}
+    {% set new_user_rd = new_rd
+                         | combine({team_rd_key: {"user": rd.user}},
+                                   recursive=True,
+                                   list_merge="append")  %}
+    {% set nsc.user_role_defs =
+              nsc.user_role_defs
+              | combine(new_user_rd, recursive=True, list_merge="append") %}
+  {% endif %}
+
+  {% if team_rd_key != None %}
+    {% set new_team_rd = new_rd
+                         | combine({team_rd_key: {"team": rd.team}},
+                                   recursive=True,
+                                   list_merge="append") %}
+    {% set nsc.team_role_defs =
+              nsc.team_role_defs
+              | combine(new_team_rd, recursive=True, list_merge="append") %}
+  {% endif %}
+{% endfor %}
+
+{{ (nsc.user_role_defs.values() | list
+    + nsc.team_role_defs.values() | list)
+   | unique
+   | to_json }}

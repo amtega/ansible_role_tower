@@ -1,0 +1,57 @@
+---
+# Setup roles tasks
+
+- block:
+    - name: Launch tower roles setup
+      awx.awx.role:
+        role: "{{ tower_role_item.role | default(omit) }}"
+        state: "{{ tower_role_item.state | default(omit) }}"
+        team: "{{ tower_role_item.user | default(omit) }}"
+        user: "{{ tower_role_item.user | default(omit) }}"
+        workflows: "{{ tower_role_item.workflows | default(omit) }}"
+        job_templates: "{{ tower_role_item.job_templates | default(omit) }}"
+        tower_config_file: "{{ tower_config_file | default(omit) }}"
+        tower_host: "{{ tower_host }}"
+        tower_password: "{{ tower_password }}"
+        tower_username: "{{ tower_username }}"
+        validate_certs: "{{ tower_validate_certs }}"
+        verbosity: "{{ tower_template_item.verbosity | default(omit) }}"
+      register: tower_roles_async_setup_result
+      changed_when: no
+      loop: "{{ lookup('template', 'roles.yml.j2') | from_yaml }}"
+      loop_control:
+        loop_var: tower_role_item
+        label: >-
+          {{ tower_role_item.user | default(tower_role_item.team) }} /
+          {{ tower_role_item.role }} /
+          {{ tower_role_item.state }}
+      async: "{{ tower_async_timeout }}"
+      poll: 0
+      no_log: "{{ tower_no_log }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
+
+    - name: Check tower roles setup
+      async_status:
+        jid: >-
+          {{ tower_roles_async_setup_result.results
+             [tower_role_index].ansible_job_id }}
+      when: tower_roles_async_setup_result is defined
+      register: tower_roles_setup_result
+      changed_when: no
+      loop: "{{ lookup('template', 'roles.yml.j2') | from_yaml }}"
+      loop_control:
+        loop_var: tower_role_item
+        index_var: tower_role_index
+        label: >-
+          {{ tower_role_item.user | default(tower_role_item.team) }} /
+          {{ tower_role_item.role }} /
+          {{ tower_role_item.state }}
+      until: tower_roles_setup_result.finished
+      retries: "{{ tower_get_status_retries }}"
+      delay: "{{ tower_get_status_delay }}"
+      no_log: "{{ tower_no_log }}"
+      ignore_errors: "{{ tower_ignore_errors | bool }}"
+  tags:
+    - role::tower
+    - role::tower::configure
+    - role::tower::configure::roles

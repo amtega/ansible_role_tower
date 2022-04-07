@@ -18,7 +18,7 @@
     username: "{{ tower_user_item.username }}"
   when: tower_user_item.force_update | default(false) | bool
   register: tower_users_setup_result
-  loop: "{{ tower_users_to_manage }}"
+  loop: "{{ _tower_users_to_manage }}"
   loop_control:
     loop_var: tower_user_item
     label: "{{ tower_user_item.username }}"

@@ -2,19 +2,9 @@
 # Role tasks
 
 - block:
-    - block:
-        - name: Load common varibles
-          ansible.builtin.include_vars:
-            file: vars/common.yml
-        - name: Load RH tower varibles
-          ansible.builtin.include_vars:
-            file: vars/rh.yml
-        - name: Load AWX variables
-          ansible.builtin.include_vars:
-            file: vars/awx.yml
-        - name: Load hostvars variables
-          ansible.builtin.include_vars:
-            file: vars/hostvars.yml
+    - name: Setup variables
+      ansible.builtin.include_tasks:
+        file: common/vars.yml
       tags:
         - always
 
