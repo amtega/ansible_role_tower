@@ -40,6 +40,7 @@
         tower_host: "{{ tower_host }}"
         tower_password: "{{ tower_password }}"
         tower_username: "{{ tower_username }}"
+        update_project: "{{ update_project.update_project | default(omit) }}"
         wait: "{{ tower_project_item.wait | default(omit) }}"
         validate_certs: "{{ tower_validate_certs }}"
       register: tower_projects_async_setup_result
