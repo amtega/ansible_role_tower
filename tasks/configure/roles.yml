@@ -6,7 +6,7 @@
       awx.awx.role:
         role: "{{ tower_role_item.role | default(omit) }}"
         state: "{{ tower_role_item.state | default(omit) }}"
-        team: "{{ tower_role_item.user | default(omit) }}"
+        team: "{{ tower_role_item.team | default(omit) }}"
         user: "{{ tower_role_item.user | default(omit) }}"
         workflows: "{{ tower_role_item.workflows | default(omit) }}"
         job_templates: "{{ tower_role_item.job_templates | default(omit) }}"
